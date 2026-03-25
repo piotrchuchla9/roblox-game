@@ -21,8 +21,10 @@ local GardenManager = require(script.GardenManager)
 local DropSystem = require(script.DropSystem)
 local MonetizationManager = require(script.MonetizationManager)
 local DailyRewardManager = require(script.DailyRewardManager)
+local MapSetup = require(script.MapSetup)
 
 MonetizationManager.init()
+MapSetup.build()
 
 -- Helper: send updated data to client
 local function syncData(player: Player)
