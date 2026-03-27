@@ -56,8 +56,7 @@ function GardenUI.update(data)
 	subtitleText.Size = UDim2.new(0.5, 0, 1, 0)
 	subtitleText.BackgroundTransparency = 1
 	subtitleText.Text = data.garden.bedCount .. "/" .. Config.MAX_BED_COUNT .. " beds"
-	subtitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
-	subtitleText.TextTransparency = 0.5
+	subtitleText.TextColor3 = UITheme.TEXT_SECONDARY
 	subtitleText.TextSize = 12
 	subtitleText.Font = UITheme.FONT_REGULAR
 	subtitleText.TextXAlignment = Enum.TextXAlignment.Left
@@ -67,8 +66,9 @@ function GardenUI.update(data)
 	if data.garden.bedCount < Config.MAX_BED_COUNT then
 		local upgradeBtn = UITheme.createActionButton(subtitle, {
 			text = "UPGRADE " .. Config.BED_UPGRADE_COST,
-			color = UITheme.YELLOW,
-			textColor = Color3.fromRGB(10, 10, 26),
+			color = UITheme.BTN_ORANGE,
+			shadowColor = UITheme.BTN_ORANGE_SHADOW,
+			textColor = UITheme.TEXT_ON_BTN,
 			size = UDim2.new(0, 110, 0, 26),
 		})
 		upgradeBtn.Position = UDim2.new(1, -55, 0.5, 0)
@@ -85,7 +85,7 @@ function GardenUI.update(data)
 			if bed == nil or bed.seedId == nil then
 				-- Empty bed
 				local item = UITheme.createListItem(panel.contentScroll, {
-					borderColor = UITheme.MAGENTA,
+					borderColor = UITheme.PRIMARY,
 					borderTransparency = 0.5,
 					icon = "🕳️",
 					iconTransparency = 0.4,
@@ -96,8 +96,8 @@ function GardenUI.update(data)
 				label.Size = UDim2.new(1, 0, 1, 0)
 				label.BackgroundTransparency = 1
 				label.Text = "Tap to Plant"
-				label.TextColor3 = Color3.fromRGB(255, 255, 255)
-				label.TextTransparency = 0.5
+				label.TextColor3 = UITheme.TEXT_PRIMARY
+				label.TextTransparency = 0
 				label.TextSize = 12
 				label.Font = UITheme.FONT_BOLD
 				label.TextXAlignment = Enum.TextXAlignment.Left
@@ -116,14 +116,14 @@ function GardenUI.update(data)
 			elseif bed.isReady then
 				-- Ready bed
 				local item = UITheme.createListItem(panel.contentScroll, {
-					borderColor = UITheme.GREEN,
+					borderColor = UITheme.BTN_GREEN,
 					icon = "✨",
 				})
 				item.frame.LayoutOrder = i
 
 				-- Glow stroke on frame
 				local glowStroke = Instance.new("UIStroke")
-				glowStroke.Color = UITheme.GREEN
+				glowStroke.Color = UITheme.BTN_GREEN
 				glowStroke.Thickness = 1
 				glowStroke.Transparency = 0.7
 				glowStroke.Parent = item.frame
@@ -140,7 +140,7 @@ function GardenUI.update(data)
 				readyLabel.Size = UDim2.new(1, 0, 1, 0)
 				readyLabel.BackgroundTransparency = 1
 				readyLabel.Text = "READY!"
-				readyLabel.TextColor3 = UITheme.GREEN
+				readyLabel.TextColor3 = UITheme.BTN_GREEN
 				readyLabel.TextSize = 14
 				readyLabel.Font = UITheme.FONT_BOLD
 				readyLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -148,7 +148,7 @@ function GardenUI.update(data)
 
 				local harvestBtn = UITheme.createActionButton(item.actionFrame, {
 					text = "HARVEST",
-					color = UITheme.GREEN,
+					color = UITheme.BTN_GREEN,
 				})
 				harvestBtn.MouseButton1Click:Connect(function()
 					remotesFolder.HarvestBed:FireServer(i)
@@ -167,7 +167,7 @@ function GardenUI.update(data)
 			else
 				-- Growing bed
 				local item = UITheme.createListItem(panel.contentScroll, {
-					borderColor = UITheme.YELLOW,
+					borderColor = UITheme.BTN_ORANGE,
 					icon = "🌿",
 				})
 				item.frame.LayoutOrder = i
@@ -183,8 +183,8 @@ function GardenUI.update(data)
 				growLabel.Position = UDim2.new(0, 0, 0, 4)
 				growLabel.BackgroundTransparency = 1
 				growLabel.Text = "Growing"
-				growLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-				growLabel.TextTransparency = 0.3
+				growLabel.TextColor3 = UITheme.TEXT_PRIMARY
+				growLabel.TextTransparency = 0
 				growLabel.TextSize = 11
 				growLabel.Font = UITheme.FONT_REGULAR
 				growLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -195,7 +195,7 @@ function GardenUI.update(data)
 				timeLabel.Position = UDim2.new(0, 0, 0, 18)
 				timeLabel.BackgroundTransparency = 1
 				timeLabel.Text = remaining .. "s"
-				timeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+				timeLabel.TextColor3 = UITheme.TEXT_PRIMARY
 				timeLabel.TextSize = 14
 				timeLabel.Font = UITheme.FONT_BOLD
 				timeLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -214,14 +214,14 @@ function GardenUI.update(data)
 				local fillFrame = Instance.new("Frame")
 				fillFrame.Name = "Fill"
 				fillFrame.Size = UDim2.new(progress, 0, 1, 0)
-				fillFrame.BackgroundColor3 = UITheme.YELLOW
+				fillFrame.BackgroundColor3 = UITheme.BTN_GREEN
 				fillFrame.BorderSizePixel = 0
 				fillFrame.Parent = trackFrame
 
 				local fillGrad = Instance.new("UIGradient")
 				fillGrad.Color = ColorSequence.new({
-					ColorSequenceKeypoint.new(0, UITheme.YELLOW),
-					ColorSequenceKeypoint.new(1, UITheme.ORANGE),
+					ColorSequenceKeypoint.new(0, UITheme.BTN_GREEN),
+					ColorSequenceKeypoint.new(1, UITheme.BTN_ORANGE),
 				})
 				fillGrad.Parent = fillFrame
 
@@ -237,7 +237,7 @@ function GardenUI.update(data)
 
 				local waterBtn = UITheme.createActionButton(item.actionFrame, {
 					text = waterCooldown > 0 and (waterCooldown .. "s") or "💧 WATER",
-					color = waterCooldown > 0 and Color3.fromRGB(60, 60, 60) or Color3.fromRGB(0, 136, 255),
+					color = waterCooldown > 0 and Color3.fromRGB(200, 200, 200) or UITheme.BTN_BLUE,
 				})
 
 				if waterCooldown <= 0 then
@@ -249,20 +249,20 @@ function GardenUI.update(data)
 		else
 			-- Locked bed
 			local item = UITheme.createListItem(panel.contentScroll, {
-				borderColor = Color3.fromRGB(255, 255, 255),
-				borderTransparency = 0.85,
+				borderColor = Color3.fromRGB(189, 189, 189),
+				borderTransparency = 0.5,
 				icon = "🔒",
 				iconTransparency = 0.7,
 			})
 			item.frame.LayoutOrder = i
-			item.frame.BackgroundTransparency = 0.6
+			item.frame.BackgroundTransparency = 0.3
 
 			local lockLabel = Instance.new("TextLabel")
 			lockLabel.Size = UDim2.new(1, 0, 1, 0)
 			lockLabel.BackgroundTransparency = 1
 			lockLabel.Text = "Locked — " .. Config.BED_UPGRADE_COST .. " seeds"
-			lockLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-			lockLabel.TextTransparency = 0.7
+			lockLabel.TextColor3 = UITheme.TEXT_SECONDARY
+			lockLabel.TextTransparency = 0
 			lockLabel.TextSize = 11
 			lockLabel.Font = UITheme.FONT_REGULAR
 			lockLabel.TextXAlignment = Enum.TextXAlignment.Left
