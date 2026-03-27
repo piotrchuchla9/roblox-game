@@ -30,7 +30,7 @@ function PlayerDataManager.getDefaultData(): any
 		currencies = { seeds = 100, goldenSeeds = 0 }, -- start with 100 seeds
 		gamepasses = {},
 		dailyReward = { lastClaimed = 0, streak = 0 },
-		stats = { totalHarvested = 0, totalSold = 0 },
+		stats = { totalHarvested = 0, totalSold = 0, gardenLikes = 0 },
 		freeSeedTimer = 0,
 	}
 end

@@ -26,8 +26,24 @@ export type PlayerData = {
 	currencies: {seeds: number, goldenSeeds: number},
 	gamepasses: {[string]: boolean},
 	dailyReward: {lastClaimed: number, streak: number},
-	stats: {totalHarvested: number, totalSold: number},
+	stats: {totalHarvested: number, totalSold: number, gardenLikes: number},
 	freeSeedTimer: number,
+}
+
+export type Plot = {
+	slotIndex: number,
+	ownerUserId: number,
+	position: Vector3,
+	model: Model?,
+}
+
+export type TradeOffer = {
+	fromUserId: number,
+	toUserId: number,
+	offerBrainrotIds: {string},
+	requestBrainrotIds: {string},
+	status: string, -- "pending" | "accepted" | "declined" | "expired"
+	createdAt: number,
 }
 
 return {}

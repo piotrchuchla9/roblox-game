@@ -69,4 +69,22 @@ Config.DAILY_REWARD_COOLDOWN = 72000 -- 20 hours
 -- Leaderboard
 Config.LEADERBOARD_UPDATE_INTERVAL = 60
 
+-- Multiplayer / Plots
+Config.MAX_PLAYERS_PER_SERVER = 30
+Config.PLOT_SIZE = 20 -- studs per side
+Config.PLOT_RING_RADIUS = 110 -- studs from center to plot ring
+Config.PLOT_FADE_TIME = 10 -- seconds for plot fade out on leave
+
+-- Trading
+Config.TRADE_TIMEOUT = 15 -- seconds to confirm
+Config.TRADE_MAX_ITEMS = 6 -- max brainrots per side
+Config.TRADE_PROXIMITY = 8 -- studs range for ProximityPrompt
+
+-- Social
+Config.LIKE_COOLDOWN = 86400 -- 24 hours between likes per player pair
+
+-- Island
+Config.ISLAND_RADIUS = 150 -- studs
+Config.HUB_RADIUS = 40 -- studs
+
 return Config
