@@ -1,173 +1,220 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local BrainrotDatabase = require(ReplicatedStorage.Shared.BrainrotDatabase)
+local Config = require(ReplicatedStorage.Shared.Config)
+local UITheme = require(script.Parent.UITheme)
 
 local CollectionBook = {}
 
-local RARITY_COLORS = {
-	Common = Color3.fromRGB(180, 180, 180),
-	Uncommon = Color3.fromRGB(80, 200, 80),
-	Rare = Color3.fromRGB(50, 120, 255),
-	Epic = Color3.fromRGB(180, 50, 255),
-	Legendary = Color3.fromRGB(255, 200, 0),
-	Mythic = Color3.fromRGB(255, 50, 50),
-}
-
-local RARITY_ORDER = { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" }
-
-local screenGui: ScreenGui
+local panel = nil
 local visible = false
+
+local RARITY_EMOJI = {
+	Common = "",
+	Uncommon = "🟢",
+	Rare = "💎",
+	Epic = "💜",
+	Legendary = "⭐",
+	Mythic = "🔥",
+}
 
 function CollectionBook.create()
 	local player = Players.LocalPlayer
 	local playerGui = player:WaitForChild("PlayerGui")
 
-	screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "CollectionBook"
-	screenGui.ResetOnSpawn = false
-	screenGui.Enabled = false
-	screenGui.Parent = playerGui
-
-	local frame = Instance.new("Frame")
-	frame.Name = "BookFrame"
-	frame.Size = UDim2.new(0, 500, 0, 400)
-	frame.Position = UDim2.new(0.5, -250, 0.5, -200)
-	frame.BackgroundColor3 = Color3.fromRGB(25, 25, 40)
-	frame.Parent = screenGui
-
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 12)
-	corner.Parent = frame
-
-	local title = Instance.new("TextLabel")
-	title.Size = UDim2.new(1, 0, 0, 40)
-	title.BackgroundTransparency = 1
-	title.Text = "Brainrot Collection"
-	title.TextColor3 = Color3.fromRGB(255, 255, 255)
-	title.TextSize = 22
-	title.Font = Enum.Font.GothamBold
-	title.Parent = frame
-
-	local closeBtn = Instance.new("TextButton")
-	closeBtn.Size = UDim2.new(0, 30, 0, 30)
-	closeBtn.Position = UDim2.new(1, -35, 0, 5)
-	closeBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
-	closeBtn.Text = "X"
-	closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	closeBtn.TextSize = 16
-	closeBtn.Font = Enum.Font.GothamBold
-	closeBtn.Parent = frame
-	closeBtn.MouseButton1Click:Connect(function()
-		CollectionBook.toggle()
-	end)
-
-	local closeBtnCorner = Instance.new("UICorner")
-	closeBtnCorner.CornerRadius = UDim.new(0, 6)
-	closeBtnCorner.Parent = closeBtn
-
-	local scroll = Instance.new("ScrollingFrame")
-	scroll.Name = "BrainrotList"
-	scroll.Size = UDim2.new(1, -20, 1, -50)
-	scroll.Position = UDim2.new(0, 10, 0, 45)
-	scroll.BackgroundTransparency = 1
-	scroll.ScrollBarThickness = 6
-	scroll.Parent = frame
-
-	local layout = Instance.new("UIGridLayout")
-	layout.CellSize = UDim2.new(0, 90, 0, 100)
-	layout.CellPadding = UDim2.new(0, 8, 0, 8)
-	layout.Parent = scroll
+	panel = UITheme.createPanel(playerGui, {
+		name = "CollectionBook",
+		title = "📖 COLLECTION",
+		onClose = function()
+			CollectionBook.toggle()
+		end,
+	})
 end
 
-function CollectionBook.update(data)
-	if not screenGui then return end
-	local scroll = screenGui.BookFrame.BrainrotList
-	local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
-
-	for _, child in scroll:GetChildren() do
-		if child:IsA("Frame") then
+local function clearContent()
+	for _, child in panel.contentScroll:GetChildren() do
+		if child:IsA("Frame") or child:IsA("TextButton") then
 			child:Destroy()
 		end
 	end
+end
 
-	-- Sort brainrots by rarity
+function CollectionBook.update(data)
+	if not panel then return end
+	clearContent()
+
+	local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
+
+	-- Count discovered
+	local discovered = 0
+	local total = 0
+	for _ in BrainrotDatabase do
+		total += 1
+	end
+	for _ in data.collection do
+		discovered += 1
+	end
+
+	-- Subtitle
+	local subtitle = Instance.new("Frame")
+	subtitle.Size = UDim2.new(1, 0, 0, 20)
+	subtitle.BackgroundTransparency = 1
+	subtitle.LayoutOrder = 0
+	subtitle.Parent = panel.contentScroll
+
+	local subtitleText = Instance.new("TextLabel")
+	subtitleText.Size = UDim2.new(1, 0, 1, 0)
+	subtitleText.BackgroundTransparency = 1
+	subtitleText.Text = discovered .. "/" .. total .. " discovered"
+	subtitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+	subtitleText.TextTransparency = 0.5
+	subtitleText.TextSize = 12
+	subtitleText.Font = UITheme.FONT_REGULAR
+	subtitleText.TextXAlignment = Enum.TextXAlignment.Left
+	subtitleText.Parent = subtitle
+
+	-- Sort brainrots by rarity (rarest first)
 	local sorted = {}
 	for _, brainrot in BrainrotDatabase do
 		table.insert(sorted, brainrot)
 	end
 	table.sort(sorted, function(a, b)
-		local aIdx = table.find(RARITY_ORDER, a.rarity) or 0
-		local bIdx = table.find(RARITY_ORDER, b.rarity) or 0
+		local aIdx = table.find(UITheme.RARITY_ORDER, a.rarity) or 99
+		local bIdx = table.find(UITheme.RARITY_ORDER, b.rarity) or 99
 		return aIdx < bIdx
 	end)
 
+	-- Group by rarity and render with dividers
+	local currentRarity = nil
+	local layoutOrder = 1
+
 	for _, brainrot in sorted do
-		local owned = data.collection[brainrot.id]
-		local color = RARITY_COLORS[brainrot.rarity] or RARITY_COLORS.Common
-
-		local entry = Instance.new("Frame")
-		entry.Name = brainrot.id
-		entry.BackgroundColor3 = owned and color or Color3.fromRGB(40, 40, 40)
-		entry.BackgroundTransparency = owned and 0.3 or 0.7
-		entry.Parent = scroll
-
-		local entryCorner = Instance.new("UICorner")
-		entryCorner.CornerRadius = UDim.new(0, 8)
-		entryCorner.Parent = entry
-
-		local nameLabel = Instance.new("TextLabel")
-		nameLabel.Size = UDim2.new(1, -4, 0.5, 0)
-		nameLabel.Position = UDim2.new(0, 2, 0, 2)
-		nameLabel.BackgroundTransparency = 1
-		nameLabel.Text = owned and brainrot.name or "???"
-		nameLabel.TextColor3 = owned and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(100, 100, 100)
-		nameLabel.TextSize = 10
-		nameLabel.TextWrapped = true
-		nameLabel.Font = Enum.Font.GothamBold
-		nameLabel.Parent = entry
-
-		local countLabel = Instance.new("TextLabel")
-		countLabel.Size = UDim2.new(1, 0, 0, 15)
-		countLabel.Position = UDim2.new(0, 0, 0.5, 0)
-		countLabel.BackgroundTransparency = 1
-		countLabel.Text = owned and ("x" .. owned.count) or ""
-		countLabel.TextColor3 = color
-		countLabel.TextSize = 12
-		countLabel.Font = Enum.Font.GothamBold
-		countLabel.Parent = entry
-
-		-- Sell button for duplicates (count >= 2)
-		if owned and owned.count >= 2 then
-			local sellBtn = Instance.new("TextButton")
-			sellBtn.Name = "SellBtn"
-			sellBtn.Size = UDim2.new(0.8, 0, 0, 18)
-			sellBtn.Position = UDim2.new(0.1, 0, 1, -22)
-			sellBtn.BackgroundColor3 = Color3.fromRGB(200, 80, 30)
-			sellBtn.Text = "Sell +" .. brainrot.sellValue
-			sellBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-			sellBtn.TextSize = 9
-			sellBtn.Font = Enum.Font.GothamBold
-			sellBtn.Parent = entry
-
-			local sellCorner = Instance.new("UICorner")
-			sellCorner.CornerRadius = UDim.new(0, 4)
-			sellCorner.Parent = sellBtn
-
-			sellBtn.MouseButton1Click:Connect(function()
-				remotesFolder.SellBrainrot:FireServer(brainrot.id)
-			end)
+		-- Section divider when rarity changes
+		if brainrot.rarity ~= currentRarity then
+			currentRarity = brainrot.rarity
+			local color = UITheme.RARITY_COLORS[currentRarity] or UITheme.RARITY_COLORS.Common
+			local emoji = RARITY_EMOJI[currentRarity] or ""
+			local divider = UITheme.createSectionDivider(panel.contentScroll, {
+				text = emoji .. " " .. string.upper(currentRarity),
+				color = color,
+			})
+			divider.LayoutOrder = layoutOrder
+			layoutOrder += 1
 		end
-	end
 
-	local layout = scroll:FindFirstChildOfClass("UIGridLayout")
-	if layout then
-		scroll.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+		local owned = data.collection[brainrot.id]
+		local rarityColor = UITheme.RARITY_COLORS[brainrot.rarity] or UITheme.RARITY_COLORS.Common
+		local dropRate = Config.DROP_RATES[brainrot.rarity] or 0
+
+		if owned then
+			-- Owned brainrot
+			local item = UITheme.createListItem(panel.contentScroll, {
+				borderColor = rarityColor,
+				icon = "🧠",
+			})
+			item.frame.LayoutOrder = layoutOrder
+
+			-- Name
+			local nameLabel = Instance.new("TextLabel")
+			nameLabel.Size = UDim2.new(1, 0, 0, 18)
+			nameLabel.Position = UDim2.new(0, 0, 0, 2)
+			nameLabel.BackgroundTransparency = 1
+			nameLabel.Text = brainrot.name
+			nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+			nameLabel.TextSize = 12
+			nameLabel.Font = UITheme.FONT_BOLD
+			nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+			nameLabel.TextTruncate = Enum.TextTruncate.AtEnd
+			nameLabel.Parent = item.infoFrame
+
+			-- Rarity label
+			local rarityLabel = Instance.new("TextLabel")
+			rarityLabel.Size = UDim2.new(1, 0, 0, 14)
+			rarityLabel.Position = UDim2.new(0, 0, 0, 20)
+			rarityLabel.BackgroundTransparency = 1
+			rarityLabel.Text = (RARITY_EMOJI[brainrot.rarity] or "") .. " " .. string.upper(brainrot.rarity) .. " — " .. dropRate .. "%"
+			rarityLabel.TextColor3 = rarityColor
+			rarityLabel.TextSize = 9
+			rarityLabel.Font = UITheme.FONT_BOLD
+			rarityLabel.TextXAlignment = Enum.TextXAlignment.Left
+			rarityLabel.Parent = item.infoFrame
+
+			-- Count (right side, before action)
+			local countLabel = Instance.new("TextLabel")
+			countLabel.Size = UDim2.new(0, 30, 1, 0)
+			countLabel.Position = UDim2.new(0, -35, 0, 0)
+			countLabel.BackgroundTransparency = 1
+			countLabel.Text = "x" .. owned.count
+			countLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+			countLabel.TextSize = 14
+			countLabel.Font = UITheme.FONT_BOLD
+			countLabel.Parent = item.actionFrame
+
+			-- Sell button if count >= 2
+			if owned.count >= 2 then
+				item.actionFrame.Size = UDim2.new(0, 100, 1, 0)
+				item.actionFrame.Position = UDim2.new(1, -100, 0, 0)
+
+				countLabel.Position = UDim2.new(0, 0, 0, 0)
+				countLabel.Size = UDim2.new(0, 28, 1, 0)
+
+				local sellBtn = UITheme.createActionButton(item.actionFrame, {
+					text = "SELL +" .. brainrot.sellValue,
+					color = Color3.fromRGB(200, 80, 30),
+					size = UDim2.new(0, 64, 0, 26),
+				})
+				sellBtn.Position = UDim2.new(1, -32, 0.5, 0)
+				sellBtn.MouseButton1Click:Connect(function()
+					remotesFolder.SellBrainrot:FireServer(brainrot.id)
+				end)
+			end
+		else
+			-- Locked brainrot
+			local item = UITheme.createListItem(panel.contentScroll, {
+				borderColor = Color3.fromRGB(255, 255, 255),
+				borderTransparency = 0.85,
+				icon = "❓",
+				iconTransparency = 0.6,
+			})
+			item.frame.LayoutOrder = layoutOrder
+			item.frame.BackgroundTransparency = 0.65
+
+			local nameLabel = Instance.new("TextLabel")
+			nameLabel.Size = UDim2.new(1, 0, 0, 18)
+			nameLabel.Position = UDim2.new(0, 0, 0, 2)
+			nameLabel.BackgroundTransparency = 1
+			nameLabel.Text = "???"
+			nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+			nameLabel.TextTransparency = 0.6
+			nameLabel.TextSize = 12
+			nameLabel.Font = UITheme.FONT_BOLD
+			nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+			nameLabel.Parent = item.infoFrame
+
+			local rarityHint = Instance.new("TextLabel")
+			rarityHint.Size = UDim2.new(1, 0, 0, 14)
+			rarityHint.Position = UDim2.new(0, 0, 0, 20)
+			rarityHint.BackgroundTransparency = 1
+			rarityHint.Text = string.upper(brainrot.rarity) .. " — " .. dropRate .. "%"
+			rarityHint.TextColor3 = Color3.fromRGB(255, 255, 255)
+			rarityHint.TextTransparency = 0.75
+			rarityHint.TextSize = 9
+			rarityHint.Font = UITheme.FONT_BOLD
+			rarityHint.TextXAlignment = Enum.TextXAlignment.Left
+			rarityHint.Parent = item.infoFrame
+		end
+
+		layoutOrder += 1
 	end
 end
 
 function CollectionBook.toggle()
 	visible = not visible
-	screenGui.Enabled = visible
+	if visible then
+		UITheme.tweenOpen(panel.screenGui)
+	else
+		UITheme.tweenClose(panel.screenGui)
+	end
 end
 
 return CollectionBook
