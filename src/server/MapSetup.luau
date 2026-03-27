@@ -1,149 +1,424 @@
--- MapSetup: Creates the 3D game world on server start
--- This generates placeholder geometry. Replace with proper models later.
-
+-- MapSetup: Creates the Candy Pastel circular island world
 local Workspace = game:GetService("Workspace")
+local Lighting = game:GetService("Lighting")
 
 local MapSetup = {}
 
-function MapSetup.build()
-	-- Main platform
-	local platform = Instance.new("Part")
-	platform.Name = "MainPlatform"
-	platform.Size = Vector3.new(200, 2, 200)
-	platform.Position = Vector3.new(0, -1, 0)
-	platform.Anchored = true
-	platform.BrickColor = BrickColor.new("Bright green")
-	platform.Material = Enum.Material.Grass
-	platform.Parent = Workspace
+local function makePart(config): Part
+	local part = Instance.new("Part")
+	part.Name = config.name or "Part"
+	part.Size = config.size or Vector3.new(4, 4, 4)
+	part.Position = config.position or Vector3.new(0, 0, 0)
+	part.Anchored = true
+	part.BrickColor = config.brickColor or BrickColor.new("White")
+	part.Color = config.color or part.Color
+	part.Material = config.material or Enum.Material.SmoothPlastic
+	part.Transparency = config.transparency or 0
+	part.CanCollide = config.canCollide ~= false
+	part.CastShadow = config.castShadow ~= false
+	part.Parent = config.parent or Workspace
+	return part
+end
 
-	-- Spawn location
+local function makeTree(position: Vector3, parent: Instance)
+	local trunk = makePart({
+		name = "Trunk",
+		size = Vector3.new(2, 8, 2),
+		position = position + Vector3.new(0, 4, 0),
+		color = Color3.fromRGB(139, 90, 43),
+		material = Enum.Material.Wood,
+		parent = parent,
+	})
+	local crown = makePart({
+		name = "Crown",
+		size = Vector3.new(8, 8, 8),
+		position = position + Vector3.new(0, 10, 0),
+		color = Color3.fromRGB(100, 200, 100),
+		material = Enum.Material.Grass,
+		parent = parent,
+	})
+	local mesh = Instance.new("SpecialMesh")
+	mesh.MeshType = Enum.MeshType.Sphere
+	mesh.Parent = crown
+end
+
+local function makeFlower(position: Vector3, parent: Instance)
+	local colors = {
+		Color3.fromRGB(255, 181, 232),
+		Color3.fromRGB(181, 222, 255),
+		Color3.fromRGB(255, 245, 186),
+		Color3.fromRGB(220, 211, 255),
+		Color3.fromRGB(231, 255, 172),
+	}
+	local color = colors[math.random(1, #colors)]
+	makePart({
+		name = "Stem",
+		size = Vector3.new(0.3, 1.5, 0.3),
+		position = position + Vector3.new(0, 0.75, 0),
+		color = Color3.fromRGB(80, 160, 60),
+		material = Enum.Material.Grass,
+		parent = parent,
+	})
+	local bloom = makePart({
+		name = "Bloom",
+		size = Vector3.new(1.2, 0.6, 1.2),
+		position = position + Vector3.new(0, 1.7, 0),
+		color = color,
+		material = Enum.Material.SmoothPlastic,
+		parent = parent,
+	})
+	local mesh = Instance.new("SpecialMesh")
+	mesh.MeshType = Enum.MeshType.Sphere
+	mesh.Parent = bloom
+end
+
+local function makeBalloon(position: Vector3, parent: Instance)
+	local colors = {
+		Color3.fromRGB(255, 181, 232),
+		Color3.fromRGB(181, 222, 255),
+		Color3.fromRGB(255, 245, 186),
+		Color3.fromRGB(220, 211, 255),
+	}
+	local color = colors[math.random(1, #colors)]
+	makePart({
+		name = "String",
+		size = Vector3.new(0.1, 6, 0.1),
+		position = position + Vector3.new(0, 3, 0),
+		color = Color3.fromRGB(200, 200, 200),
+		material = Enum.Material.Fabric,
+		canCollide = false,
+		castShadow = false,
+		parent = parent,
+	})
+	local ball = makePart({
+		name = "Balloon",
+		size = Vector3.new(3, 3.6, 3),
+		position = position + Vector3.new(0, 7.5, 0),
+		color = color,
+		material = Enum.Material.SmoothPlastic,
+		canCollide = false,
+		parent = parent,
+	})
+	local mesh = Instance.new("SpecialMesh")
+	mesh.MeshType = Enum.MeshType.Sphere
+	mesh.Parent = ball
+end
+
+function MapSetup.build()
+	-- === TERRAIN: Circular island ===
+	local terrain = Workspace.Terrain
+	terrain:Clear()
+
+	local ISLAND_RADIUS = 150
+	local resolution = 4
+
+	for x = -ISLAND_RADIUS, ISLAND_RADIUS, resolution do
+		for z = -ISLAND_RADIUS, ISLAND_RADIUS, resolution do
+			local dist = math.sqrt(x * x + z * z)
+			if dist <= ISLAND_RADIUS then
+				local height = 2 + math.sin(x * 0.05) * 1.5 + math.cos(z * 0.07) * 1.2
+				if dist < 45 then
+					height = 2
+				end
+				local region = Region3.new(
+					Vector3.new(x - resolution/2, -4, z - resolution/2),
+					Vector3.new(x + resolution/2, height, z + resolution/2)
+				)
+				terrain:FillRegion(region:ExpandToGrid(resolution), resolution, Enum.Material.Grass)
+			end
+		end
+	end
+
+	-- Pond in hub
+	for x = -15, 15, resolution do
+		for z = -15, 15, resolution do
+			local dist = math.sqrt(x * x + z * z)
+			if dist <= 12 then
+				local region = Region3.new(
+					Vector3.new(x - resolution/2, 0, z - resolution/2),
+					Vector3.new(x + resolution/2, 1.8, z + resolution/2)
+				)
+				terrain:FillRegion(region:ExpandToGrid(resolution), resolution, Enum.Material.Water)
+			end
+		end
+	end
+
+	-- Stone paths
+	for i = 0, 29 do
+		local angle = (i / 30) * math.pi * 2
+		for d = 45, 100, resolution do
+			local px = math.cos(angle) * d
+			local pz = math.sin(angle) * d
+			local region = Region3.new(
+				Vector3.new(px - 2, -1, pz - 2),
+				Vector3.new(px + 2, 2.5, pz + 2)
+			)
+			terrain:FillRegion(region:ExpandToGrid(resolution), resolution, Enum.Material.Slate)
+		end
+	end
+
+	-- === DECORATIONS ===
+	local decoFolder = Instance.new("Folder")
+	decoFolder.Name = "Decorations"
+	decoFolder.Parent = Workspace
+
+	-- === SPAWN ===
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "MainSpawn"
-	spawn.Size = Vector3.new(6, 1, 6)
-	spawn.Position = Vector3.new(0, 0.5, -30)
+	spawn.Size = Vector3.new(8, 1, 8)
+	spawn.Position = Vector3.new(0, 2.5, -25)
 	spawn.Anchored = true
-	spawn.BrickColor = BrickColor.new("White")
+	spawn.Color = Color3.fromRGB(255, 181, 232)
 	spawn.Material = Enum.Material.SmoothPlastic
 	spawn.Parent = Workspace
 
-	-- Garden area marker
-	local gardenArea = Instance.new("Part")
-	gardenArea.Name = "GardenArea"
-	gardenArea.Size = Vector3.new(50, 0.5, 40)
-	gardenArea.Position = Vector3.new(0, 0.25, 0)
-	gardenArea.Anchored = true
-	gardenArea.BrickColor = BrickColor.new("Brown")
-	gardenArea.Material = Enum.Material.Ground
-	gardenArea.Parent = Workspace
+	-- === HUB BUILDINGS ===
+	local hubFolder = Instance.new("Folder")
+	hubFolder.Name = "Hub"
+	hubFolder.Parent = Workspace
 
-	-- Garden beds (visual placeholders — 8 max beds in 2 rows)
-	local bedsFolder = Instance.new("Folder")
-	bedsFolder.Name = "GardenBeds"
-	bedsFolder.Parent = Workspace
+	-- Shop (pink)
+	local shopBase = makePart({
+		name = "ShopBuilding", size = Vector3.new(14, 10, 12),
+		position = Vector3.new(25, 7, 0),
+		color = Color3.fromRGB(255, 200, 230), parent = hubFolder,
+	})
+	makePart({
+		name = "ShopRoof", size = Vector3.new(16, 2, 14),
+		position = Vector3.new(25, 13, 0),
+		color = Color3.fromRGB(233, 30, 99), parent = hubFolder,
+	})
+	local shopSign = Instance.new("SurfaceGui")
+	shopSign.Name = "ShopSign"
+	shopSign.Face = Enum.NormalId.Front
+	shopSign.Parent = shopBase
+	local shopText = Instance.new("TextLabel")
+	shopText.Size = UDim2.new(1, 0, 0.4, 0)
+	shopText.Position = UDim2.new(0, 0, 0.1, 0)
+	shopText.BackgroundTransparency = 1
+	shopText.Text = "SHOP"
+	shopText.TextColor3 = Color3.fromRGB(93, 64, 55)
+	shopText.TextScaled = true
+	shopText.Font = Enum.Font.GothamBold
+	shopText.Parent = shopSign
 
-	for i = 1, 8 do
-		local row = math.ceil(i / 4)
-		local col = ((i - 1) % 4) + 1
+	-- Leaderboard (blue)
+	makePart({
+		name = "LeaderboardBuilding", size = Vector3.new(12, 10, 12),
+		position = Vector3.new(-25, 7, 0),
+		color = Color3.fromRGB(200, 225, 255), parent = hubFolder,
+	})
+	makePart({
+		name = "LeaderboardRoof", size = Vector3.new(14, 2, 14),
+		position = Vector3.new(-25, 13, 0),
+		color = Color3.fromRGB(33, 150, 243), parent = hubFolder,
+	})
 
-		local bed = Instance.new("Part")
-		bed.Name = "Bed" .. i
-		bed.Size = Vector3.new(8, 1, 8)
-		bed.Position = Vector3.new(-15 + (col - 1) * 10, 0.75, -5 + (row - 1) * 12)
-		bed.Anchored = true
-		bed.BrickColor = BrickColor.new("Reddish brown")
-		bed.Material = Enum.Material.Ground
-		bed.Parent = bedsFolder
-
-		-- Soil mound inside bed
-		local soil = Instance.new("Part")
-		soil.Name = "Soil"
-		soil.Size = Vector3.new(6, 0.5, 6)
-		soil.Position = bed.Position + Vector3.new(0, 0.75, 0)
-		soil.Anchored = true
-		soil.BrickColor = BrickColor.new("Dark orange")
-		soil.Material = Enum.Material.Ground
-		soil.Parent = bed
-	end
-
-	-- Decorative fence around garden
-	local fencePositions = {
-		{ pos = Vector3.new(-25, 2, 0), size = Vector3.new(1, 4, 44) },
-		{ pos = Vector3.new(25, 2, 0), size = Vector3.new(1, 4, 44) },
-		{ pos = Vector3.new(0, 2, -22), size = Vector3.new(50, 4, 1) },
-		{ pos = Vector3.new(0, 2, 22), size = Vector3.new(50, 4, 1) },
-	}
-
-	for i, f in fencePositions do
-		local fence = Instance.new("Part")
-		fence.Name = "Fence" .. i
-		fence.Size = f.size
-		fence.Position = f.pos
-		fence.Anchored = true
-		fence.BrickColor = BrickColor.new("Brown")
-		fence.Material = Enum.Material.Wood
-		fence.Transparency = 0.3
-		fence.Parent = Workspace
-	end
-
-	-- Trend Radar billboard
-	local billboard = Instance.new("Part")
-	billboard.Name = "TrendRadar"
-	billboard.Size = Vector3.new(12, 8, 1)
-	billboard.Position = Vector3.new(0, 6, -25)
-	billboard.Anchored = true
-	billboard.BrickColor = BrickColor.new("Really black")
-	billboard.Material = Enum.Material.SmoothPlastic
-	billboard.Parent = Workspace
+	-- Trend Radar (yellow billboard)
+	local billboard = makePart({
+		name = "TrendRadar", size = Vector3.new(14, 8, 1),
+		position = Vector3.new(0, 8, 30),
+		color = Color3.fromRGB(255, 245, 186), parent = hubFolder,
+	})
+	makePart({ name = "TrendPost1", size = Vector3.new(1, 12, 1), position = Vector3.new(-6, 6, 30), color = Color3.fromRGB(139, 90, 43), material = Enum.Material.Wood, parent = hubFolder })
+	makePart({ name = "TrendPost2", size = Vector3.new(1, 12, 1), position = Vector3.new(6, 6, 30), color = Color3.fromRGB(139, 90, 43), material = Enum.Material.Wood, parent = hubFolder })
 
 	local surfaceGui = Instance.new("SurfaceGui")
 	surfaceGui.Name = "TrendDisplay"
 	surfaceGui.Face = Enum.NormalId.Back
 	surfaceGui.Parent = billboard
 
-	local titleLabel = Instance.new("TextLabel")
-	titleLabel.Size = UDim2.new(1, 0, 0.3, 0)
-	titleLabel.BackgroundTransparency = 1
-	titleLabel.Text = "TREND RADAR"
-	titleLabel.TextColor3 = Color3.fromRGB(255, 220, 50)
-	titleLabel.TextScaled = true
-	titleLabel.Font = Enum.Font.GothamBold
-	titleLabel.Parent = surfaceGui
+	local trendTitle = Instance.new("TextLabel")
+	trendTitle.Size = UDim2.new(1, 0, 0.3, 0)
+	trendTitle.BackgroundTransparency = 1
+	trendTitle.Text = "TREND RADAR"
+	trendTitle.TextColor3 = Color3.fromRGB(93, 64, 55)
+	trendTitle.TextScaled = true
+	trendTitle.Font = Enum.Font.GothamBold
+	trendTitle.Parent = surfaceGui
 
-	local trendLabel = Instance.new("TextLabel")
-	trendLabel.Name = "CurrentTrend"
-	trendLabel.Size = UDim2.new(1, 0, 0.5, 0)
-	trendLabel.Position = UDim2.new(0, 0, 0.3, 0)
-	trendLabel.BackgroundTransparency = 1
-	trendLabel.Text = "Season 1: OG Brainrot"
-	trendLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-	trendLabel.TextScaled = true
-	trendLabel.Font = Enum.Font.GothamBold
-	trendLabel.Parent = surfaceGui
+	local trendCurrent = Instance.new("TextLabel")
+	trendCurrent.Name = "CurrentTrend"
+	trendCurrent.Size = UDim2.new(1, 0, 0.4, 0)
+	trendCurrent.Position = UDim2.new(0, 0, 0.3, 0)
+	trendCurrent.BackgroundTransparency = 1
+	trendCurrent.Text = "Season 1: OG Brainrot"
+	trendCurrent.TextColor3 = Color3.fromRGB(233, 30, 99)
+	trendCurrent.TextScaled = true
+	trendCurrent.Font = Enum.Font.GothamBold
+	trendCurrent.Parent = surfaceGui
 
-	local weeklyLabel = Instance.new("TextLabel")
-	weeklyLabel.Name = "WeeklyBrainrot"
-	weeklyLabel.Size = UDim2.new(1, 0, 0.2, 0)
-	weeklyLabel.Position = UDim2.new(0, 0, 0.8, 0)
-	weeklyLabel.BackgroundTransparency = 1
-	weeklyLabel.Text = "Weekly: Bombardiro Crocodilo"
-	weeklyLabel.TextColor3 = Color3.fromRGB(50, 200, 255)
-	weeklyLabel.TextScaled = true
-	weeklyLabel.Font = Enum.Font.Gotham
-	weeklyLabel.Parent = surfaceGui
+	local trendWeekly = Instance.new("TextLabel")
+	trendWeekly.Name = "WeeklyBrainrot"
+	trendWeekly.Size = UDim2.new(1, 0, 0.2, 0)
+	trendWeekly.Position = UDim2.new(0, 0, 0.75, 0)
+	trendWeekly.BackgroundTransparency = 1
+	trendWeekly.Text = "Weekly: Bombardiro Crocodilo"
+	trendWeekly.TextColor3 = Color3.fromRGB(33, 150, 243)
+	trendWeekly.TextScaled = true
+	trendWeekly.Font = Enum.Font.Gotham
+	trendWeekly.Parent = surfaceGui
 
-	-- Lighting / atmosphere
-	local lighting = game:GetService("Lighting")
-	lighting.ClockTime = 14 -- afternoon sun
-	lighting.Brightness = 2
-	lighting.Ambient = Color3.fromRGB(120, 120, 140)
+	-- Benches
+	for i = 0, 3 do
+		local angle = (i / 4) * math.pi * 2 + math.pi / 4
+		local bx = math.cos(angle) * 20
+		local bz = math.sin(angle) * 20
+		makePart({ name = "Bench" .. i, size = Vector3.new(4, 1.5, 1.5), position = Vector3.new(bx, 3, bz), color = Color3.fromRGB(139, 90, 43), material = Enum.Material.Wood, parent = hubFolder })
+	end
+
+	-- Balloons
+	for i = 1, 6 do
+		local angle = (i / 6) * math.pi * 2
+		makeBalloon(Vector3.new(math.cos(angle) * 32, 2.5, math.sin(angle) * 32), decoFolder)
+	end
+
+	-- Lampposts
+	for i = 0, 5 do
+		local angle = (i / 6) * math.pi * 2
+		local lx = math.cos(angle) * 38
+		local lz = math.sin(angle) * 38
+		makePart({ name = "LampPole" .. i, size = Vector3.new(0.6, 8, 0.6), position = Vector3.new(lx, 6, lz), color = Color3.fromRGB(200, 200, 200), material = Enum.Material.Metal, parent = decoFolder })
+		local lamp = makePart({ name = "LampLight" .. i, size = Vector3.new(2, 1, 2), position = Vector3.new(lx, 10.5, lz), color = Color3.fromRGB(255, 245, 186), material = Enum.Material.Neon, parent = decoFolder })
+		local pointLight = Instance.new("PointLight")
+		pointLight.Color = Color3.fromRGB(255, 240, 220)
+		pointLight.Brightness = 0.5
+		pointLight.Range = 20
+		pointLight.Parent = lamp
+	end
+
+	-- === PLOT MARKERS (30 slots) ===
+	local plotsFolder = Instance.new("Folder")
+	plotsFolder.Name = "PlotSlots"
+	plotsFolder.Parent = Workspace
+
+	for i = 0, 29 do
+		local angle = (i / 30) * math.pi * 2
+		local px = math.cos(angle) * 110
+		local pz = math.sin(angle) * 110
+
+		local marker = Instance.new("Part")
+		marker.Name = "PlotSlot" .. i
+		marker.Size = Vector3.new(20, 0.2, 20)
+		marker.Position = Vector3.new(px, 2, pz)
+		marker.Anchored = true
+		marker.Transparency = 1
+		marker.CanCollide = false
+		marker.Parent = plotsFolder
+
+		makePart({
+			name = "PlotFloor",
+			size = Vector3.new(18, 0.3, 18),
+			position = Vector3.new(px, 2.2, pz),
+			color = Color3.fromRGB(200, 180, 140),
+			material = Enum.Material.WoodPlanks,
+			transparency = 0.8,
+			canCollide = false,
+			parent = marker,
+		})
+	end
+
+	-- === TREES ===
+	math.randomseed(42)
+	for i = 1, 40 do
+		local angle = math.random() * math.pi * 2
+		local dist = 50 + math.random() * 80
+		local tx = math.cos(angle) * dist
+		local tz = math.sin(angle) * dist
+		local tooClose = false
+		for s = 0, 29 do
+			local sa = (s / 30) * math.pi * 2
+			local sx = math.cos(sa) * 110
+			local sz = math.sin(sa) * 110
+			if (tx - sx)^2 + (tz - sz)^2 < 15^2 then
+				tooClose = true
+				break
+			end
+		end
+		if not tooClose then
+			makeTree(Vector3.new(tx, 2, tz), decoFolder)
+		end
+	end
+
+	-- === FLOWERS ===
+	for i = 1, 60 do
+		local angle = math.random() * math.pi * 2
+		local dist = 15 + math.random() * 120
+		makeFlower(Vector3.new(math.cos(angle) * dist + math.random(-3, 3), 2, math.sin(angle) * dist + math.random(-3, 3)), decoFolder)
+	end
+
+	-- === FOUNTAIN ===
+	local fountain = makePart({
+		name = "Fountain", size = Vector3.new(4, 3, 4),
+		position = Vector3.new(0, 3, 0),
+		color = Color3.fromRGB(220, 220, 230),
+		material = Enum.Material.Marble, parent = hubFolder,
+	})
+
+	local attachment = Instance.new("Attachment")
+	attachment.Position = Vector3.new(0, 1.5, 0)
+	attachment.Parent = fountain
+
+	local waterParticles = Instance.new("ParticleEmitter")
+	waterParticles.Color = ColorSequence.new(Color3.fromRGB(181, 222, 255))
+	waterParticles.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.3), NumberSequenceKeypoint.new(1, 0.1) })
+	waterParticles.Lifetime = NumberRange.new(1, 2)
+	waterParticles.Rate = 30
+	waterParticles.Speed = NumberRange.new(4, 6)
+	waterParticles.SpreadAngle = Vector2.new(15, 15)
+	waterParticles.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(1, 1) })
+	waterParticles.Parent = attachment
+
+	local sparkleAttachment = Instance.new("Attachment")
+	sparkleAttachment.Position = Vector3.new(0, 2, 0)
+	sparkleAttachment.Parent = fountain
+
+	local sparkles = Instance.new("ParticleEmitter")
+	sparkles.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 220)), ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 245, 186)) })
+	sparkles.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(0.5, 0.4), NumberSequenceKeypoint.new(1, 0) })
+	sparkles.Lifetime = NumberRange.new(3, 5)
+	sparkles.Rate = 8
+	sparkles.Speed = NumberRange.new(0.3, 0.8)
+	sparkles.SpreadAngle = Vector2.new(180, 180)
+	sparkles.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.5), NumberSequenceKeypoint.new(0.5, 0), NumberSequenceKeypoint.new(1, 1) })
+	sparkles.Parent = sparkleAttachment
+
+	-- === LIGHTING ===
+	Lighting.ClockTime = 14
+	Lighting.Brightness = 3
+	Lighting.Ambient = Color3.fromRGB(180, 170, 190)
+	Lighting.OutdoorAmbient = Color3.fromRGB(200, 195, 210)
+
+	for _, child in Lighting:GetChildren() do
+		if child:IsA("Atmosphere") or child:IsA("BloomEffect") or child:IsA("ColorCorrectionEffect") or child:IsA("SunRaysEffect") then
+			child:Destroy()
+		end
+	end
 
 	local atmosphere = Instance.new("Atmosphere")
-	atmosphere.Density = 0.3
+	atmosphere.Density = 0.15
 	atmosphere.Offset = 0.25
-	atmosphere.Color = Color3.fromRGB(200, 220, 255)
-	atmosphere.Parent = lighting
+	atmosphere.Color = Color3.fromRGB(255, 230, 240)
+	atmosphere.Decay = Color3.fromRGB(200, 180, 210)
+	atmosphere.Parent = Lighting
 
-	print("[Server] Map built successfully")
+	local bloom = Instance.new("BloomEffect")
+	bloom.Intensity = 0.3
+	bloom.Size = 24
+	bloom.Threshold = 2
+	bloom.Parent = Lighting
+
+	local cc = Instance.new("ColorCorrectionEffect")
+	cc.Saturation = 0.15
+	cc.TintColor = Color3.fromRGB(255, 245, 250)
+	cc.Parent = Lighting
+
+	local sunRays = Instance.new("SunRaysEffect")
+	sunRays.Intensity = 0.1
+	sunRays.Spread = 0.5
+	sunRays.Parent = Lighting
+
+	print("[Server] Candy Pastel island built successfully")
 end
 
 return MapSetup
