@@ -66,8 +66,8 @@ function CollectionBook.update(data)
 	subtitleText.Size = UDim2.new(1, 0, 1, 0)
 	subtitleText.BackgroundTransparency = 1
 	subtitleText.Text = discovered .. "/" .. total .. " discovered"
-	subtitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
-	subtitleText.TextTransparency = 0.5
+	subtitleText.TextColor3 = UITheme.TEXT_SECONDARY
+	subtitleText.TextTransparency = 0
 	subtitleText.TextSize = 12
 	subtitleText.Font = UITheme.FONT_REGULAR
 	subtitleText.TextXAlignment = Enum.TextXAlignment.Left
@@ -120,7 +120,7 @@ function CollectionBook.update(data)
 			nameLabel.Position = UDim2.new(0, 0, 0, 2)
 			nameLabel.BackgroundTransparency = 1
 			nameLabel.Text = brainrot.name
-			nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+			nameLabel.TextColor3 = UITheme.TEXT_PRIMARY
 			nameLabel.TextSize = 12
 			nameLabel.Font = UITheme.FONT_BOLD
 			nameLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -145,7 +145,7 @@ function CollectionBook.update(data)
 			countLabel.Position = UDim2.new(0, -35, 0, 0)
 			countLabel.BackgroundTransparency = 1
 			countLabel.Text = "x" .. owned.count
-			countLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+			countLabel.TextColor3 = UITheme.TEXT_PRIMARY
 			countLabel.TextSize = 14
 			countLabel.Font = UITheme.FONT_BOLD
 			countLabel.Parent = item.actionFrame
@@ -160,7 +160,7 @@ function CollectionBook.update(data)
 
 				local sellBtn = UITheme.createActionButton(item.actionFrame, {
 					text = "SELL +" .. brainrot.sellValue,
-					color = Color3.fromRGB(200, 80, 30),
+					color = UITheme.BTN_ORANGE,
 					size = UDim2.new(0, 64, 0, 26),
 				})
 				sellBtn.Position = UDim2.new(1, -32, 0.5, 0)
@@ -171,21 +171,21 @@ function CollectionBook.update(data)
 		else
 			-- Locked brainrot
 			local item = UITheme.createListItem(panel.contentScroll, {
-				borderColor = Color3.fromRGB(255, 255, 255),
-				borderTransparency = 0.85,
+				borderColor = Color3.fromRGB(189, 189, 189),
+				borderTransparency = 0.5,
 				icon = "❓",
 				iconTransparency = 0.6,
 			})
 			item.frame.LayoutOrder = layoutOrder
-			item.frame.BackgroundTransparency = 0.65
+			item.frame.BackgroundTransparency = 0.3
 
 			local nameLabel = Instance.new("TextLabel")
 			nameLabel.Size = UDim2.new(1, 0, 0, 18)
 			nameLabel.Position = UDim2.new(0, 0, 0, 2)
 			nameLabel.BackgroundTransparency = 1
 			nameLabel.Text = "???"
-			nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-			nameLabel.TextTransparency = 0.6
+			nameLabel.TextColor3 = UITheme.TEXT_SECONDARY
+			nameLabel.TextTransparency = 0
 			nameLabel.TextSize = 12
 			nameLabel.Font = UITheme.FONT_BOLD
 			nameLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -196,8 +196,8 @@ function CollectionBook.update(data)
 			rarityHint.Position = UDim2.new(0, 0, 0, 20)
 			rarityHint.BackgroundTransparency = 1
 			rarityHint.Text = string.upper(brainrot.rarity) .. " — " .. dropRate .. "%"
-			rarityHint.TextColor3 = Color3.fromRGB(255, 255, 255)
-			rarityHint.TextTransparency = 0.75
+			rarityHint.TextColor3 = UITheme.TEXT_SECONDARY
+			rarityHint.TextTransparency = 0
 			rarityHint.TextSize = 9
 			rarityHint.Font = UITheme.FONT_BOLD
 			rarityHint.TextXAlignment = Enum.TextXAlignment.Left

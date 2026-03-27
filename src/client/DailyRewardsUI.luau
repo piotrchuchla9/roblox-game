@@ -41,8 +41,8 @@ function DailyRewardsUI.create()
 	streakTitle.Position = UDim2.new(0, 0, 0, 20)
 	streakTitle.BackgroundTransparency = 1
 	streakTitle.Text = "STREAK"
-	streakTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-	streakTitle.TextTransparency = 0.4
+	streakTitle.TextColor3 = UITheme.TEXT_PRIMARY
+	streakTitle.TextTransparency = 0
 	streakTitle.TextSize = 12
 	streakTitle.Font = UITheme.FONT_BOLD
 	streakTitle.Parent = centerFrame
@@ -53,13 +53,13 @@ function DailyRewardsUI.create()
 	streakLabel.Position = UDim2.new(0, 0, 0, 40)
 	streakLabel.BackgroundTransparency = 1
 	streakLabel.Text = "0"
-	streakLabel.TextColor3 = UITheme.MAGENTA
+	streakLabel.TextColor3 = UITheme.BTN_PINK
 	streakLabel.TextSize = 36
 	streakLabel.Font = UITheme.FONT_BOLD
 	streakLabel.Parent = centerFrame
 
 	local streakStroke = Instance.new("UIStroke")
-	streakStroke.Color = UITheme.MAGENTA
+	streakStroke.Color = UITheme.BTN_PINK
 	streakStroke.Thickness = 1
 	streakStroke.Transparency = 0.5
 	streakStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
@@ -82,7 +82,7 @@ function DailyRewardsUI.create()
 		local dot = Instance.new("Frame")
 		dot.Name = "Day" .. i
 		dot.Size = UDim2.new(0, 20, 0, 20)
-		dot.BackgroundColor3 = UITheme.BG_CARD
+		dot.BackgroundColor3 = UITheme.BG_SECONDARY
 		dot.LayoutOrder = i
 		dot.Parent = dotsFrame
 
@@ -92,7 +92,7 @@ function DailyRewardsUI.create()
 
 		local dotStroke = Instance.new("UIStroke")
 		dotStroke.Name = "DotStroke"
-		dotStroke.Color = UITheme.MAGENTA
+		dotStroke.Color = UITheme.PRIMARY
 		dotStroke.Thickness = 1
 		dotStroke.Transparency = 0.6
 		dotStroke.Parent = dot
@@ -106,7 +106,7 @@ function DailyRewardsUI.create()
 	rewardLabel.Position = UDim2.new(0, 0, 0, 140)
 	rewardLabel.BackgroundTransparency = 1
 	rewardLabel.Text = "+50 seeds"
-	rewardLabel.TextColor3 = UITheme.YELLOW
+	rewardLabel.TextColor3 = UITheme.BTN_ORANGE
 	rewardLabel.TextSize = 20
 	rewardLabel.Font = UITheme.FONT_BOLD
 	rewardLabel.Parent = centerFrame
@@ -115,7 +115,7 @@ function DailyRewardsUI.create()
 	claimBtn = Instance.new("TextButton")
 	claimBtn.Size = UDim2.new(0.7, 0, 0, 46)
 	claimBtn.Position = UDim2.new(0.15, 0, 0, 195)
-	claimBtn.BackgroundColor3 = UITheme.GREEN
+	claimBtn.BackgroundColor3 = UITheme.BTN_ORANGE
 	claimBtn.Text = "CLAIM!"
 	claimBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 	claimBtn.TextSize = 18
@@ -129,7 +129,7 @@ function DailyRewardsUI.create()
 
 	local claimStroke = Instance.new("UIStroke")
 	claimStroke.Name = "ClaimStroke"
-	claimStroke.Color = UITheme.GREEN
+	claimStroke.Color = UITheme.BTN_ORANGE
 	claimStroke.Thickness = 2
 	claimStroke.Transparency = 0.4
 	claimStroke.Parent = claimBtn
@@ -149,7 +149,7 @@ function DailyRewardsUI.update(data)
 	-- Update streak number + color
 	streakLabel.Text = tostring(streak)
 	local t = math.clamp(streak / Config.DAILY_REWARD_MAX_STREAK, 0, 1)
-	streakLabel.TextColor3 = UITheme.MAGENTA:Lerp(UITheme.CYAN, t)
+	streakLabel.TextColor3 = UITheme.BTN_PINK:Lerp(UITheme.BTN_BLUE, t)
 
 	-- Update dots
 	if pulseTween then
@@ -161,19 +161,19 @@ function DailyRewardsUI.update(data)
 		local dotStroke = dot:FindFirstChild("DotStroke")
 		if i <= streak then
 			-- Completed: filled gradient
-			dot.BackgroundColor3 = UITheme.MAGENTA:Lerp(UITheme.CYAN, (i - 1) / Config.DAILY_REWARD_MAX_STREAK)
+			dot.BackgroundColor3 = UITheme.PRIMARY:Lerp(UITheme.SECONDARY, (i - 1) / Config.DAILY_REWARD_MAX_STREAK)
 			dot.BackgroundTransparency = 0.2
 			if dotStroke then
 				dotStroke.Transparency = 0.3
-				dotStroke.Color = UITheme.CYAN
+				dotStroke.Color = UITheme.SECONDARY
 			end
 		elseif i == streak + 1 then
 			-- Current day: pulse
-			dot.BackgroundColor3 = UITheme.MAGENTA
+			dot.BackgroundColor3 = UITheme.BTN_PINK
 			dot.BackgroundTransparency = 0.5
 			if dotStroke then
 				dotStroke.Transparency = 0.3
-				dotStroke.Color = UITheme.MAGENTA
+				dotStroke.Color = UITheme.BTN_PINK
 				pulseTween = TweenService:Create(dotStroke,
 					TweenInfo.new(0.75, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
 					{ Transparency = 0 }
@@ -182,11 +182,11 @@ function DailyRewardsUI.update(data)
 			end
 		else
 			-- Future: dim
-			dot.BackgroundColor3 = UITheme.BG_CARD
+			dot.BackgroundColor3 = UITheme.BG_SECONDARY
 			dot.BackgroundTransparency = 0.5
 			if dotStroke then
 				dotStroke.Transparency = 0.7
-				dotStroke.Color = UITheme.MAGENTA
+				dotStroke.Color = Color3.fromRGB(200, 200, 200)
 			end
 		end
 	end
@@ -197,11 +197,11 @@ function DailyRewardsUI.update(data)
 
 	if canClaim then
 		rewardLabel.Text = "+" .. nextReward .. " seeds"
-		claimBtn.BackgroundColor3 = UITheme.GREEN
+		claimBtn.BackgroundColor3 = UITheme.BTN_ORANGE
 		claimBtn.Text = "CLAIM!"
 		local cs = claimBtn:FindFirstChild("ClaimStroke")
 		if cs then
-			cs.Color = UITheme.GREEN
+			cs.Color = UITheme.BTN_ORANGE
 			cs.Transparency = 0.4
 		end
 	else
@@ -209,11 +209,11 @@ function DailyRewardsUI.update(data)
 		local hours = math.floor(remaining / 3600)
 		local mins = math.floor((remaining % 3600) / 60)
 		rewardLabel.Text = "Next: +" .. nextReward .. " seeds"
-		claimBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+		claimBtn.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
 		claimBtn.Text = string.format("Wait %dh %dm", hours, mins)
 		local cs = claimBtn:FindFirstChild("ClaimStroke")
 		if cs then
-			cs.Color = Color3.fromRGB(60, 60, 60)
+			cs.Color = Color3.fromRGB(200, 200, 200)
 			cs.Transparency = 0.7
 		end
 	end

@@ -16,7 +16,7 @@ local GAMEPASS_INFO = {
 		desc = "+2 beds, golden can, VIP badge",
 		price = 199,
 		icon = "👑",
-		accent = UITheme.MAGENTA,
+		accent = UITheme.BTN_PINK,
 	},
 	{
 		key = "AUTO_HARVEST",
@@ -24,7 +24,7 @@ local GAMEPASS_INFO = {
 		desc = "Auto-collect ready brainrots",
 		price = 149,
 		icon = "⚡",
-		accent = UITheme.CYAN,
+		accent = UITheme.BTN_BLUE,
 	},
 	{
 		key = "DOUBLE_COLLECTION",
@@ -32,7 +32,7 @@ local GAMEPASS_INFO = {
 		desc = "2x Seeds from selling",
 		price = 99,
 		icon = "💰",
-		accent = UITheme.YELLOW,
+		accent = UITheme.BTN_ORANGE,
 	},
 }
 
@@ -70,7 +70,7 @@ function ShopUI.create()
 	-- Gamepasses section header
 	local gpDivider = UITheme.createSectionDivider(contentScroll, {
 		text = "⭐ GAMEPASSES",
-		color = UITheme.MAGENTA,
+		color = UITheme.BTN_PINK,
 	})
 	gpDivider.LayoutOrder = layoutOrder
 	layoutOrder += 1
@@ -89,7 +89,7 @@ function ShopUI.create()
 		nameLabel.Position = UDim2.new(0, 0, 0, 2)
 		nameLabel.BackgroundTransparency = 1
 		nameLabel.Text = gp.name
-		nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		nameLabel.TextColor3 = UITheme.TEXT_PRIMARY
 		nameLabel.TextSize = 14
 		nameLabel.Font = UITheme.FONT_BOLD
 		nameLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -101,8 +101,8 @@ function ShopUI.create()
 		descLabel.Position = UDim2.new(0, 0, 0, 22)
 		descLabel.BackgroundTransparency = 1
 		descLabel.Text = gp.desc
-		descLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-		descLabel.TextTransparency = 0.5
+		descLabel.TextColor3 = UITheme.TEXT_SECONDARY
+		descLabel.TextTransparency = 0
 		descLabel.TextSize = 11
 		descLabel.Font = UITheme.FONT_REGULAR
 		descLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -126,14 +126,14 @@ function ShopUI.create()
 	-- Dev Products section header
 	local dpDivider = UITheme.createSectionDivider(contentScroll, {
 		text = "🚀 BOOSTS",
-		color = UITheme.ORANGE,
+		color = UITheme.BTN_ORANGE,
 	})
 	dpDivider.LayoutOrder = layoutOrder
 	layoutOrder += 1
 
 	for _, dp in DEV_PRODUCT_INFO do
 		local item = UITheme.createListItem(contentScroll, {
-			borderColor = UITheme.ORANGE,
+			borderColor = UITheme.BTN_ORANGE,
 			icon = dp.icon,
 			height = 48,
 		})
@@ -145,7 +145,7 @@ function ShopUI.create()
 		nameLabel.Size = UDim2.new(1, 0, 1, 0)
 		nameLabel.BackgroundTransparency = 1
 		nameLabel.Text = dp.name
-		nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		nameLabel.TextColor3 = UITheme.TEXT_PRIMARY
 		nameLabel.TextSize = 13
 		nameLabel.Font = UITheme.FONT_BOLD
 		nameLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -154,8 +154,8 @@ function ShopUI.create()
 		-- Price button
 		local priceBtn = UITheme.createActionButton(item.actionFrame, {
 			text = dp.price .. " R$",
-			color = UITheme.ORANGE,
-			textColor = Color3.fromRGB(10, 10, 26),
+			color = UITheme.BTN_ORANGE,
+			textColor = UITheme.TEXT_ON_BTN,
 			size = UDim2.new(0, 60, 0, 26),
 		})
 		priceBtn.MouseButton1Click:Connect(function()

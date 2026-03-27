@@ -27,19 +27,19 @@ function DropAnimation.play(brainrot, isRareDrop: boolean)
 	-- Full-screen dim background
 	local dimBg = Instance.new("Frame")
 	dimBg.Size = UDim2.new(1, 0, 1, 0)
-	dimBg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	dimBg.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	dimBg.BackgroundTransparency = 1
 	dimBg.Parent = gui
 
 	TweenService:Create(dimBg, TweenInfo.new(0.3), {
-		BackgroundTransparency = 0.5,
+		BackgroundTransparency = 0.3,
 	}):Play()
 
 	-- Background flash for rare drops
 	if isRareDrop then
 		local flash = Instance.new("Frame")
 		flash.Size = UDim2.new(1, 0, 1, 0)
-		flash.BackgroundColor3 = color
+		flash.BackgroundColor3 = Color3.fromRGB(255, 255, 255):Lerp(color, 0.3)
 		flash.BackgroundTransparency = 0.4
 		flash.Parent = gui
 
@@ -53,7 +53,7 @@ function DropAnimation.play(brainrot, isRareDrop: boolean)
 	card.Size = UDim2.new(0, 0, 0, 0)
 	card.Position = UDim2.new(0.5, 0, 0.5, 0)
 	card.AnchorPoint = Vector2.new(0.5, 0.5)
-	card.BackgroundColor3 = UITheme.BG_PANEL
+	card.BackgroundColor3 = UITheme.BG_PRIMARY
 	card.Parent = gui
 
 	local cardCorner = Instance.new("UICorner")
@@ -100,7 +100,7 @@ function DropAnimation.play(brainrot, isRareDrop: boolean)
 	nameLabel.Position = UDim2.new(0, 15, 0, 70)
 	nameLabel.BackgroundTransparency = 1
 	nameLabel.Text = brainrot.name
-	nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	nameLabel.TextColor3 = UITheme.TEXT_PRIMARY
 	nameLabel.TextSize = 24
 	nameLabel.Font = UITheme.FONT_BOLD
 	nameLabel.TextWrapped = true
@@ -127,8 +127,8 @@ function DropAnimation.play(brainrot, isRareDrop: boolean)
 	closeLabel.Position = UDim2.new(0, 0, 1, -28)
 	closeLabel.BackgroundTransparency = 1
 	closeLabel.Text = "Tap to close"
-	closeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-	closeLabel.TextTransparency = 0.6
+	closeLabel.TextColor3 = UITheme.TEXT_SECONDARY
+	closeLabel.TextTransparency = 0
 	closeLabel.TextSize = 11
 	closeLabel.Font = UITheme.FONT_REGULAR
 	closeLabel.Parent = card
@@ -146,7 +146,8 @@ function DropAnimation.play(brainrot, isRareDrop: boolean)
 			particle.Size = UDim2.new(0, 6, 0, 6)
 			particle.Position = UDim2.new(0.5, 0, 0.5, 0)
 			particle.AnchorPoint = Vector2.new(0.5, 0.5)
-			particle.BackgroundColor3 = color
+			local confettiColors = {UITheme.PRIMARY, UITheme.SECONDARY, UITheme.ACCENT_GREEN, UITheme.ACCENT_YELLOW, UITheme.ACCENT_LAVENDER}
+			particle.BackgroundColor3 = confettiColors[math.random(1, #confettiColors)]
 			particle.Parent = gui
 
 			local pCorner = Instance.new("UICorner")
