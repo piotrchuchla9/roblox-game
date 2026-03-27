@@ -1,95 +1,138 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local Config = require(ReplicatedStorage.Shared.Config)
+local UITheme = require(script.Parent.UITheme)
 
 local DailyRewardsUI = {}
 
-local screenGui: ScreenGui
+local panel = nil
 local visible = false
-local claimBtn: TextButton
 local streakLabel: TextLabel
 local rewardLabel: TextLabel
+local claimBtn: TextButton
+local streakDots: { Frame } = {}
+local pulseTween: Tween? = nil
 
 function DailyRewardsUI.create()
 	local player = Players.LocalPlayer
 	local playerGui = player:WaitForChild("PlayerGui")
 
-	screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "DailyRewardsUI"
-	screenGui.ResetOnSpawn = false
-	screenGui.Enabled = false
-	screenGui.Parent = playerGui
+	panel = UITheme.createPanel(playerGui, {
+		name = "DailyRewardsUI",
+		title = "🎁 DAILY REWARD",
+		onClose = function()
+			DailyRewardsUI.toggle()
+		end,
+	})
 
-	local frame = Instance.new("Frame")
-	frame.Name = "DailyFrame"
-	frame.Size = UDim2.new(0, 300, 0, 200)
-	frame.Position = UDim2.new(0.5, -150, 0.5, -100)
-	frame.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-	frame.Parent = screenGui
+	local contentScroll = panel.contentScroll
 
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 12)
-	corner.Parent = frame
+	-- Center container
+	local centerFrame = Instance.new("Frame")
+	centerFrame.Size = UDim2.new(1, 0, 0, 280)
+	centerFrame.BackgroundTransparency = 1
+	centerFrame.LayoutOrder = 1
+	centerFrame.Parent = contentScroll
 
-	local title = Instance.new("TextLabel")
-	title.Size = UDim2.new(1, 0, 0, 35)
-	title.BackgroundTransparency = 1
-	title.Text = "Daily Reward"
-	title.TextColor3 = Color3.fromRGB(255, 220, 50)
-	title.TextSize = 22
-	title.Font = Enum.Font.GothamBold
-	title.Parent = frame
+	-- "STREAK" label
+	local streakTitle = Instance.new("TextLabel")
+	streakTitle.Size = UDim2.new(1, 0, 0, 20)
+	streakTitle.Position = UDim2.new(0, 0, 0, 20)
+	streakTitle.BackgroundTransparency = 1
+	streakTitle.Text = "STREAK"
+	streakTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+	streakTitle.TextTransparency = 0.4
+	streakTitle.TextSize = 12
+	streakTitle.Font = UITheme.FONT_BOLD
+	streakTitle.Parent = centerFrame
 
-	local closeBtn = Instance.new("TextButton")
-	closeBtn.Size = UDim2.new(0, 30, 0, 30)
-	closeBtn.Position = UDim2.new(1, -35, 0, 5)
-	closeBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
-	closeBtn.Text = "X"
-	closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	closeBtn.TextSize = 16
-	closeBtn.Font = Enum.Font.GothamBold
-	closeBtn.Parent = frame
-	closeBtn.MouseButton1Click:Connect(function()
-		DailyRewardsUI.toggle()
-	end)
-
-	local closeBtnCorner = Instance.new("UICorner")
-	closeBtnCorner.CornerRadius = UDim.new(0, 6)
-	closeBtnCorner.Parent = closeBtn
-
+	-- Streak number
 	streakLabel = Instance.new("TextLabel")
-	streakLabel.Size = UDim2.new(1, 0, 0, 25)
-	streakLabel.Position = UDim2.new(0, 0, 0, 45)
+	streakLabel.Size = UDim2.new(1, 0, 0, 45)
+	streakLabel.Position = UDim2.new(0, 0, 0, 40)
 	streakLabel.BackgroundTransparency = 1
-	streakLabel.Text = "Streak: 0 days"
-	streakLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-	streakLabel.TextSize = 16
-	streakLabel.Font = Enum.Font.Gotham
-	streakLabel.Parent = frame
+	streakLabel.Text = "0"
+	streakLabel.TextColor3 = UITheme.MAGENTA
+	streakLabel.TextSize = 36
+	streakLabel.Font = UITheme.FONT_BOLD
+	streakLabel.Parent = centerFrame
 
+	local streakStroke = Instance.new("UIStroke")
+	streakStroke.Color = UITheme.MAGENTA
+	streakStroke.Thickness = 1
+	streakStroke.Transparency = 0.5
+	streakStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+	streakStroke.Parent = streakLabel
+
+	-- Streak dots (7 circles)
+	local dotsFrame = Instance.new("Frame")
+	dotsFrame.Size = UDim2.new(1, 0, 0, 24)
+	dotsFrame.Position = UDim2.new(0, 0, 0, 95)
+	dotsFrame.BackgroundTransparency = 1
+	dotsFrame.Parent = centerFrame
+
+	local dotsLayout = Instance.new("UIListLayout")
+	dotsLayout.FillDirection = Enum.FillDirection.Horizontal
+	dotsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	dotsLayout.Padding = UDim.new(0, 8)
+	dotsLayout.Parent = dotsFrame
+
+	for i = 1, Config.DAILY_REWARD_MAX_STREAK do
+		local dot = Instance.new("Frame")
+		dot.Name = "Day" .. i
+		dot.Size = UDim2.new(0, 20, 0, 20)
+		dot.BackgroundColor3 = UITheme.BG_CARD
+		dot.LayoutOrder = i
+		dot.Parent = dotsFrame
+
+		local dotCorner = Instance.new("UICorner")
+		dotCorner.CornerRadius = UDim.new(1, 0)
+		dotCorner.Parent = dot
+
+		local dotStroke = Instance.new("UIStroke")
+		dotStroke.Name = "DotStroke"
+		dotStroke.Color = UITheme.MAGENTA
+		dotStroke.Thickness = 1
+		dotStroke.Transparency = 0.6
+		dotStroke.Parent = dot
+
+		table.insert(streakDots, dot)
+	end
+
+	-- Reward preview
 	rewardLabel = Instance.new("TextLabel")
 	rewardLabel.Size = UDim2.new(1, 0, 0, 30)
-	rewardLabel.Position = UDim2.new(0, 0, 0, 80)
+	rewardLabel.Position = UDim2.new(0, 0, 0, 140)
 	rewardLabel.BackgroundTransparency = 1
-	rewardLabel.Text = ""
-	rewardLabel.TextColor3 = Color3.fromRGB(255, 220, 50)
+	rewardLabel.Text = "+50 seeds"
+	rewardLabel.TextColor3 = UITheme.YELLOW
 	rewardLabel.TextSize = 20
-	rewardLabel.Font = Enum.Font.GothamBold
-	rewardLabel.Parent = frame
+	rewardLabel.Font = UITheme.FONT_BOLD
+	rewardLabel.Parent = centerFrame
 
+	-- Claim button
 	claimBtn = Instance.new("TextButton")
-	claimBtn.Size = UDim2.new(0.6, 0, 0, 40)
-	claimBtn.Position = UDim2.new(0.2, 0, 0, 130)
-	claimBtn.BackgroundColor3 = Color3.fromRGB(50, 180, 50)
-	claimBtn.Text = "Claim!"
+	claimBtn.Size = UDim2.new(0.7, 0, 0, 46)
+	claimBtn.Position = UDim2.new(0.15, 0, 0, 195)
+	claimBtn.BackgroundColor3 = UITheme.GREEN
+	claimBtn.Text = "CLAIM!"
 	claimBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 	claimBtn.TextSize = 18
-	claimBtn.Font = Enum.Font.GothamBold
-	claimBtn.Parent = frame
+	claimBtn.Font = UITheme.FONT_BOLD
+	claimBtn.AutoButtonColor = false
+	claimBtn.Parent = centerFrame
 
-	local claimBtnCorner = Instance.new("UICorner")
-	claimBtnCorner.CornerRadius = UDim.new(0, 8)
-	claimBtnCorner.Parent = claimBtn
+	local claimCorner = Instance.new("UICorner")
+	claimCorner.CornerRadius = UDim.new(0, 10)
+	claimCorner.Parent = claimBtn
+
+	local claimStroke = Instance.new("UIStroke")
+	claimStroke.Name = "ClaimStroke"
+	claimStroke.Color = UITheme.GREEN
+	claimStroke.Thickness = 2
+	claimStroke.Transparency = 0.4
+	claimStroke.Parent = claimBtn
 
 	local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 	claimBtn.MouseButton1Click:Connect(function()
@@ -98,33 +141,91 @@ function DailyRewardsUI.create()
 end
 
 function DailyRewardsUI.update(data)
-	if not screenGui then return end
+	if not panel then return end
 
 	local streak = data.dailyReward.streak
-	streakLabel.Text = "Streak: " .. streak .. " days"
-
 	local nextReward = Config.DAILY_REWARD_BASE + ((streak + 1) * Config.DAILY_REWARD_STREAK_BONUS)
 
+	-- Update streak number + color
+	streakLabel.Text = tostring(streak)
+	local t = math.clamp(streak / Config.DAILY_REWARD_MAX_STREAK, 0, 1)
+	streakLabel.TextColor3 = UITheme.MAGENTA:Lerp(UITheme.CYAN, t)
+
+	-- Update dots
+	if pulseTween then
+		pulseTween:Cancel()
+		pulseTween = nil
+	end
+
+	for i, dot in streakDots do
+		local dotStroke = dot:FindFirstChild("DotStroke")
+		if i <= streak then
+			-- Completed: filled gradient
+			dot.BackgroundColor3 = UITheme.MAGENTA:Lerp(UITheme.CYAN, (i - 1) / Config.DAILY_REWARD_MAX_STREAK)
+			dot.BackgroundTransparency = 0.2
+			if dotStroke then
+				dotStroke.Transparency = 0.3
+				dotStroke.Color = UITheme.CYAN
+			end
+		elseif i == streak + 1 then
+			-- Current day: pulse
+			dot.BackgroundColor3 = UITheme.MAGENTA
+			dot.BackgroundTransparency = 0.5
+			if dotStroke then
+				dotStroke.Transparency = 0.3
+				dotStroke.Color = UITheme.MAGENTA
+				pulseTween = TweenService:Create(dotStroke,
+					TweenInfo.new(0.75, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
+					{ Transparency = 0 }
+				)
+				pulseTween:Play()
+			end
+		else
+			-- Future: dim
+			dot.BackgroundColor3 = UITheme.BG_CARD
+			dot.BackgroundTransparency = 0.5
+			if dotStroke then
+				dotStroke.Transparency = 0.7
+				dotStroke.Color = UITheme.MAGENTA
+			end
+		end
+	end
+
+	-- Claim state
 	local elapsed = os.time() - data.dailyReward.lastClaimed
 	local canClaim = elapsed >= Config.DAILY_REWARD_COOLDOWN
 
 	if canClaim then
-		rewardLabel.Text = "+" .. nextReward .. " Seeds"
-		claimBtn.BackgroundColor3 = Color3.fromRGB(50, 180, 50)
-		claimBtn.Text = "Claim!"
+		rewardLabel.Text = "+" .. nextReward .. " seeds"
+		claimBtn.BackgroundColor3 = UITheme.GREEN
+		claimBtn.Text = "CLAIM!"
+		local cs = claimBtn:FindFirstChild("ClaimStroke")
+		if cs then
+			cs.Color = UITheme.GREEN
+			cs.Transparency = 0.4
+		end
 	else
 		local remaining = Config.DAILY_REWARD_COOLDOWN - elapsed
 		local hours = math.floor(remaining / 3600)
 		local mins = math.floor((remaining % 3600) / 60)
-		rewardLabel.Text = "Next: +" .. nextReward .. " Seeds"
-		claimBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+		rewardLabel.Text = "Next: +" .. nextReward .. " seeds"
+		claimBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 		claimBtn.Text = string.format("Wait %dh %dm", hours, mins)
+		local cs = claimBtn:FindFirstChild("ClaimStroke")
+		if cs then
+			cs.Color = Color3.fromRGB(60, 60, 60)
+			cs.Transparency = 0.7
+		end
 	end
 end
 
 function DailyRewardsUI.toggle()
 	visible = not visible
-	screenGui.Enabled = visible
+	if visible then
+		UITheme.tweenOpen(panel.screenGui)
+	else
+		UITheme.tweenClose(panel.screenGui)
+	end
 end
 
 return DailyRewardsUI
