@@ -1,140 +1,287 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local Config = require(ReplicatedStorage.Shared.Config)
+local UITheme = require(script.Parent.UITheme)
 
 local GardenUI = {}
 
-local screenGui: ScreenGui
-local gardenFrame: Frame
+local panel = nil -- { screenGui, contentScroll, ... }
+local visible = false
+local activeTweens: { Tween } = {}
 
 function GardenUI.create()
 	local player = Players.LocalPlayer
 	local playerGui = player:WaitForChild("PlayerGui")
 
-	screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "GardenUI"
-	screenGui.ResetOnSpawn = false
-	screenGui.Parent = playerGui
-
-	gardenFrame = Instance.new("Frame")
-	gardenFrame.Name = "GardenFrame"
-	gardenFrame.Size = UDim2.new(0, 400, 0, 300)
-	gardenFrame.Position = UDim2.new(0.5, -200, 0.5, -100)
-	gardenFrame.BackgroundColor3 = Color3.fromRGB(40, 80, 40)
-	gardenFrame.BackgroundTransparency = 0.2
-	gardenFrame.Parent = screenGui
-
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 12)
-	corner.Parent = gardenFrame
-
-	local title = Instance.new("TextLabel")
-	title.Size = UDim2.new(1, 0, 0, 30)
-	title.BackgroundTransparency = 1
-	title.Text = "Your Garden"
-	title.TextColor3 = Color3.fromRGB(255, 255, 255)
-	title.TextSize = 22
-	title.Font = Enum.Font.GothamBold
-	title.Parent = gardenFrame
-
-	-- Upgrade button
-	local upgradeBtn = Instance.new("TextButton")
-	upgradeBtn.Name = "UpgradeButton"
-	upgradeBtn.Size = UDim2.new(0, 120, 0, 30)
-	upgradeBtn.Position = UDim2.new(1, -130, 0, 0)
-	upgradeBtn.BackgroundColor3 = Color3.fromRGB(180, 130, 30)
-	upgradeBtn.Text = "Upgrade (" .. Config.BED_UPGRADE_COST .. ")"
-	upgradeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	upgradeBtn.TextSize = 13
-	upgradeBtn.Font = Enum.Font.GothamBold
-	upgradeBtn.Parent = gardenFrame
-
-	local upgCorner = Instance.new("UICorner")
-	upgCorner.CornerRadius = UDim.new(0, 6)
-	upgCorner.Parent = upgradeBtn
-
-	local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
-	upgradeBtn.MouseButton1Click:Connect(function()
-		remotesFolder.UpgradeGarden:FireServer()
-	end)
+	panel = UITheme.createPanel(playerGui, {
+		name = "GardenUI",
+		title = "🌱 YOUR GARDEN",
+		onClose = function()
+			GardenUI.toggle()
+		end,
+	})
 end
 
-function GardenUI.update(data)
-	if not gardenFrame then return end
+local function clearActiveTweens()
+	for _, tween in activeTweens do
+		tween:Cancel()
+	end
+	table.clear(activeTweens)
+end
 
-	for _, child in gardenFrame:GetChildren() do
-		if child:IsA("TextButton") and child.Name:match("^Bed") then
+local function clearContent()
+	clearActiveTweens()
+	for _, child in panel.contentScroll:GetChildren() do
+		if child:IsA("Frame") or child:IsA("TextButton") then
 			child:Destroy()
 		end
 	end
+end
+
+function GardenUI.update(data)
+	if not panel then return end
+	clearContent()
 
 	local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 
-	for i = 1, data.garden.bedCount do
-		local bed = data.garden.beds[i]
-		local row = math.ceil(i / 4)
-		local col = ((i - 1) % 4) + 1
+	-- Subtitle with bed count
+	local subtitle = Instance.new("Frame")
+	subtitle.Size = UDim2.new(1, 0, 0, 30)
+	subtitle.BackgroundTransparency = 1
+	subtitle.LayoutOrder = 0
+	subtitle.Parent = panel.contentScroll
 
-		local btn = Instance.new("TextButton")
-		btn.Name = "Bed" .. i
-		btn.Size = UDim2.new(0, 80, 0, 80)
-		btn.Position = UDim2.new(0, 10 + (col - 1) * 95, 0, 35 + (row - 1) * 95)
-		btn.Parent = gardenFrame
+	local subtitleText = Instance.new("TextLabel")
+	subtitleText.Size = UDim2.new(0.5, 0, 1, 0)
+	subtitleText.BackgroundTransparency = 1
+	subtitleText.Text = data.garden.bedCount .. "/" .. Config.MAX_BED_COUNT .. " beds"
+	subtitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+	subtitleText.TextTransparency = 0.5
+	subtitleText.TextSize = 12
+	subtitleText.Font = UITheme.FONT_REGULAR
+	subtitleText.TextXAlignment = Enum.TextXAlignment.Left
+	subtitleText.Parent = subtitle
 
-		local btnCorner = Instance.new("UICorner")
-		btnCorner.CornerRadius = UDim.new(0, 8)
-		btnCorner.Parent = btn
+	-- Upgrade button (if not maxed)
+	if data.garden.bedCount < Config.MAX_BED_COUNT then
+		local upgradeBtn = UITheme.createActionButton(subtitle, {
+			text = "UPGRADE " .. Config.BED_UPGRADE_COST,
+			color = UITheme.YELLOW,
+			textColor = Color3.fromRGB(10, 10, 26),
+			size = UDim2.new(0, 110, 0, 26),
+		})
+		upgradeBtn.Position = UDim2.new(1, -55, 0.5, 0)
+		upgradeBtn.MouseButton1Click:Connect(function()
+			remotesFolder.UpgradeGarden:FireServer()
+		end)
+	end
 
-		if bed.seedId == nil then
-			btn.BackgroundColor3 = Color3.fromRGB(80, 50, 30)
-			btn.Text = "Plant"
-			btn.TextColor3 = Color3.fromRGB(200, 200, 200)
-			btn.TextSize = 14
-			btn.Font = Enum.Font.GothamBold
-			btn.MouseButton1Click:Connect(function()
-				remotesFolder.PlantSeed:FireServer(i, "Common")
-			end)
-		elseif bed.isReady then
-			btn.BackgroundColor3 = Color3.fromRGB(50, 180, 50)
-			btn.Text = "Harvest!"
-			btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-			btn.TextSize = 14
-			btn.Font = Enum.Font.GothamBold
-			btn.MouseButton1Click:Connect(function()
-				remotesFolder.HarvestBed:FireServer(i)
-			end)
+	-- Bed list items
+	for i = 1, Config.MAX_BED_COUNT do
+		if i <= data.garden.bedCount then
+			local bed = data.garden.beds[i]
+
+			if bed == nil or bed.seedId == nil then
+				-- Empty bed
+				local item = UITheme.createListItem(panel.contentScroll, {
+					borderColor = UITheme.MAGENTA,
+					borderTransparency = 0.5,
+					icon = "🕳️",
+					iconTransparency = 0.4,
+				})
+				item.frame.LayoutOrder = i
+
+				local label = Instance.new("TextLabel")
+				label.Size = UDim2.new(1, 0, 1, 0)
+				label.BackgroundTransparency = 1
+				label.Text = "Tap to Plant"
+				label.TextColor3 = Color3.fromRGB(255, 255, 255)
+				label.TextTransparency = 0.5
+				label.TextSize = 12
+				label.Font = UITheme.FONT_BOLD
+				label.TextXAlignment = Enum.TextXAlignment.Left
+				label.Parent = item.infoFrame
+
+				-- Make entire row clickable
+				local clickBtn = Instance.new("TextButton")
+				clickBtn.Size = UDim2.new(1, 0, 1, 0)
+				clickBtn.BackgroundTransparency = 1
+				clickBtn.Text = ""
+				clickBtn.Parent = item.frame
+				clickBtn.MouseButton1Click:Connect(function()
+					remotesFolder.PlantSeed:FireServer(i, "Common")
+				end)
+
+			elseif bed.isReady then
+				-- Ready bed
+				local item = UITheme.createListItem(panel.contentScroll, {
+					borderColor = UITheme.GREEN,
+					icon = "✨",
+				})
+				item.frame.LayoutOrder = i
+
+				-- Glow stroke on frame
+				local glowStroke = Instance.new("UIStroke")
+				glowStroke.Color = UITheme.GREEN
+				glowStroke.Thickness = 1
+				glowStroke.Transparency = 0.7
+				glowStroke.Parent = item.frame
+
+				-- Pulse animation
+				local pulseIn = TweenService:Create(glowStroke,
+					TweenInfo.new(0.75, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
+					{ Transparency = 0.3 }
+				)
+				pulseIn:Play()
+				table.insert(activeTweens, pulseIn)
+
+				local readyLabel = Instance.new("TextLabel")
+				readyLabel.Size = UDim2.new(1, 0, 1, 0)
+				readyLabel.BackgroundTransparency = 1
+				readyLabel.Text = "READY!"
+				readyLabel.TextColor3 = UITheme.GREEN
+				readyLabel.TextSize = 14
+				readyLabel.Font = UITheme.FONT_BOLD
+				readyLabel.TextXAlignment = Enum.TextXAlignment.Left
+				readyLabel.Parent = item.infoFrame
+
+				local harvestBtn = UITheme.createActionButton(item.actionFrame, {
+					text = "HARVEST",
+					color = UITheme.GREEN,
+				})
+				harvestBtn.MouseButton1Click:Connect(function()
+					remotesFolder.HarvestBed:FireServer(i)
+				end)
+
+				-- Also clickable on row
+				local clickBtn = Instance.new("TextButton")
+				clickBtn.Size = UDim2.new(1, 0, 1, 0)
+				clickBtn.BackgroundTransparency = 1
+				clickBtn.Text = ""
+				clickBtn.ZIndex = 0
+				clickBtn.Parent = item.frame
+				clickBtn.MouseButton1Click:Connect(function()
+					remotesFolder.HarvestBed:FireServer(i)
+				end)
+			else
+				-- Growing bed
+				local item = UITheme.createListItem(panel.contentScroll, {
+					borderColor = UITheme.YELLOW,
+					icon = "🌿",
+				})
+				item.frame.LayoutOrder = i
+
+				local elapsed = os.time() - (bed.plantedAt or os.time())
+				local totalGrowth = bed.growthTime or 60
+				local remaining = math.max(0, totalGrowth - elapsed)
+				local progress = math.clamp(elapsed / totalGrowth, 0, 1)
+
+				-- Info labels
+				local growLabel = Instance.new("TextLabel")
+				growLabel.Size = UDim2.new(1, 0, 0, 16)
+				growLabel.Position = UDim2.new(0, 0, 0, 4)
+				growLabel.BackgroundTransparency = 1
+				growLabel.Text = "Growing"
+				growLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+				growLabel.TextTransparency = 0.3
+				growLabel.TextSize = 11
+				growLabel.Font = UITheme.FONT_REGULAR
+				growLabel.TextXAlignment = Enum.TextXAlignment.Left
+				growLabel.Parent = item.infoFrame
+
+				local timeLabel = Instance.new("TextLabel")
+				timeLabel.Size = UDim2.new(1, 0, 0, 18)
+				timeLabel.Position = UDim2.new(0, 0, 0, 18)
+				timeLabel.BackgroundTransparency = 1
+				timeLabel.Text = remaining .. "s"
+				timeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+				timeLabel.TextSize = 14
+				timeLabel.Font = UITheme.FONT_BOLD
+				timeLabel.TextXAlignment = Enum.TextXAlignment.Left
+				timeLabel.Parent = item.infoFrame
+
+				-- Progress bar at bottom of frame
+				local trackFrame = Instance.new("Frame")
+				trackFrame.Name = "Track"
+				trackFrame.Size = UDim2.new(1, 0, 0, 3)
+				trackFrame.Position = UDim2.new(0, 0, 1, -1)
+				trackFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				trackFrame.BackgroundTransparency = 0.9
+				trackFrame.BorderSizePixel = 0
+				trackFrame.Parent = item.frame
+
+				local fillFrame = Instance.new("Frame")
+				fillFrame.Name = "Fill"
+				fillFrame.Size = UDim2.new(progress, 0, 1, 0)
+				fillFrame.BackgroundColor3 = UITheme.YELLOW
+				fillFrame.BorderSizePixel = 0
+				fillFrame.Parent = trackFrame
+
+				local fillGrad = Instance.new("UIGradient")
+				fillGrad.Color = ColorSequence.new({
+					ColorSequenceKeypoint.new(0, UITheme.YELLOW),
+					ColorSequenceKeypoint.new(1, UITheme.ORANGE),
+				})
+				fillGrad.Parent = fillFrame
+
+				local fillCorner = Instance.new("UICorner")
+				fillCorner.CornerRadius = UDim.new(0, 2)
+				fillCorner.Parent = fillFrame
+
+				-- Water button
+				local waterCooldown = 0
+				if bed.wateredAt then
+					waterCooldown = math.max(0, Config.WATER_COOLDOWN - (os.time() - bed.wateredAt))
+				end
+
+				local waterBtn = UITheme.createActionButton(item.actionFrame, {
+					text = waterCooldown > 0 and (waterCooldown .. "s") or "💧 WATER",
+					color = waterCooldown > 0 and Color3.fromRGB(60, 60, 60) or Color3.fromRGB(0, 136, 255),
+				})
+
+				if waterCooldown <= 0 then
+					waterBtn.MouseButton1Click:Connect(function()
+						remotesFolder.WaterBed:FireServer(i)
+					end)
+				end
+			end
 		else
-			-- Growing — show countdown
-			local elapsed = os.time() - (bed.plantedAt or os.time())
-			local remaining = math.max(0, (bed.growthTime or 0) - elapsed)
+			-- Locked bed
+			local item = UITheme.createListItem(panel.contentScroll, {
+				borderColor = Color3.fromRGB(255, 255, 255),
+				borderTransparency = 0.85,
+				icon = "🔒",
+				iconTransparency = 0.7,
+			})
+			item.frame.LayoutOrder = i
+			item.frame.BackgroundTransparency = 0.6
 
-			btn.BackgroundColor3 = Color3.fromRGB(120, 100, 40)
-			btn.Text = remaining > 0 and (remaining .. "s") or "..."
-			btn.TextColor3 = Color3.fromRGB(200, 200, 100)
-			btn.TextSize = 12
-			btn.Font = Enum.Font.Gotham
-
-			local waterBtn = Instance.new("TextButton")
-			waterBtn.Name = "Water"
-			waterBtn.Size = UDim2.new(1, 0, 0, 20)
-			waterBtn.Position = UDim2.new(0, 0, 1, -20)
-			waterBtn.BackgroundColor3 = Color3.fromRGB(50, 100, 200)
-			waterBtn.Text = "Water"
-			waterBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-			waterBtn.TextSize = 11
-			waterBtn.Font = Enum.Font.GothamBold
-			waterBtn.Parent = btn
-			waterBtn.MouseButton1Click:Connect(function()
-				remotesFolder.WaterBed:FireServer(i)
-			end)
+			local lockLabel = Instance.new("TextLabel")
+			lockLabel.Size = UDim2.new(1, 0, 1, 0)
+			lockLabel.BackgroundTransparency = 1
+			lockLabel.Text = "Locked — " .. Config.BED_UPGRADE_COST .. " seeds"
+			lockLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+			lockLabel.TextTransparency = 0.7
+			lockLabel.TextSize = 11
+			lockLabel.Font = UITheme.FONT_REGULAR
+			lockLabel.TextXAlignment = Enum.TextXAlignment.Left
+			lockLabel.Parent = item.infoFrame
 		end
 	end
+end
 
-	-- Update upgrade button visibility
-	local upgradeBtn = gardenFrame:FindFirstChild("UpgradeButton")
-	if upgradeBtn then
-		upgradeBtn.Visible = data.garden.bedCount < Config.MAX_BED_COUNT
+function GardenUI.toggle()
+	visible = not visible
+	if visible then
+		UITheme.tweenOpen(panel.screenGui)
+	else
+		UITheme.tweenClose(panel.screenGui)
 	end
+end
+
+function GardenUI.isVisible(): boolean
+	return visible
 end
 
 return GardenUI
