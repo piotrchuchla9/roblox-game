@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 
 local HUD = require(script.HUD)
 local GardenUI = require(script.GardenUI)
@@ -8,6 +9,7 @@ local CollectionBook = require(script.CollectionBook)
 local ShopUI = require(script.ShopUI)
 local DailyRewardsUI = require(script.DailyRewardsUI)
 local LeaderboardUI = require(script.LeaderboardUI)
+local UITheme = require(script.UITheme)
 
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes", 10)
 if not remotesFolder then
@@ -40,32 +42,83 @@ remotesFolder.PlayDropAnimation.OnClientEvent:Connect(function(brainrot, isRareD
 	DropAnimation.play(brainrot, isRareDrop)
 end)
 
--- Wire bottom bar buttons
-local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+-- Wire tab bar buttons
+local function wireTab(tabName: string, callback: () -> ())
+	local tab = HUD.getTabButton(tabName)
+	if tab then
+		tab.MouseButton1Click:Connect(callback)
+	end
+end
 
-task.defer(function()
-	local hud = playerGui:WaitForChild("HUD", 5)
-	if not hud then return end
-	local bottomBar = hud:WaitForChild("BottomBar", 5)
-	if not bottomBar then return end
+wireTab("Garden", function()
+	GardenUI.toggle()
+	if playerData then GardenUI.update(playerData) end
+end)
 
-	bottomBar.ShopButton.MouseButton1Click:Connect(function()
-		ShopUI.toggle()
-	end)
+wireTab("Shop", function()
+	ShopUI.toggle()
+end)
 
-	bottomBar.CollectionButton.MouseButton1Click:Connect(function()
-		CollectionBook.toggle()
-		if playerData then CollectionBook.update(playerData) end
-	end)
+wireTab("Collection", function()
+	CollectionBook.toggle()
+	if playerData then CollectionBook.update(playerData) end
+end)
 
-	bottomBar.DailyButton.MouseButton1Click:Connect(function()
-		DailyRewardsUI.toggle()
-		if playerData then DailyRewardsUI.update(playerData) end
-	end)
+wireTab("Daily", function()
+	DailyRewardsUI.toggle()
+	if playerData then DailyRewardsUI.update(playerData) end
+end)
 
-	bottomBar.FreeSeedButton.MouseButton1Click:Connect(function()
-		remotesFolder.ClaimFreeSeed:FireServer()
+wireTab("FreeSeed", function()
+	remotesFolder.ClaimFreeSeed:FireServer()
+
+	-- Toast notification
+	local player = Players.LocalPlayer
+	local playerGui = player:WaitForChild("PlayerGui")
+
+	local toast = Instance.new("ScreenGui")
+	toast.Name = "Toast"
+	toast.DisplayOrder = 50
+	toast.Parent = playerGui
+
+	local toastFrame = Instance.new("Frame")
+	toastFrame.Size = UDim2.new(0, 180, 0, 36)
+	toastFrame.Position = UDim2.new(0.5, -90, 0, -40)
+	toastFrame.BackgroundColor3 = UITheme.BG_CARD
+	toastFrame.BackgroundTransparency = 0.1
+	toastFrame.Parent = toast
+
+	local toastCorner = Instance.new("UICorner")
+	toastCorner.CornerRadius = UDim.new(0, 10)
+	toastCorner.Parent = toastFrame
+
+	UITheme.createNeonBorder(toastFrame, UITheme.GREEN, 1)
+
+	local toastLabel = Instance.new("TextLabel")
+	toastLabel.Size = UDim2.new(1, 0, 1, 0)
+	toastLabel.BackgroundTransparency = 1
+	toastLabel.Text = "🌱 +1 Seed!"
+	toastLabel.TextColor3 = UITheme.GREEN
+	toastLabel.TextSize = 14
+	toastLabel.Font = UITheme.FONT_BOLD
+	toastLabel.Parent = toastFrame
+
+	-- Slide down
+	TweenService:Create(toastFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+		Position = UDim2.new(0.5, -90, 0, 60),
+	}):Play()
+
+	-- Fade out after 1.5s
+	task.delay(1.5, function()
+		TweenService:Create(toastFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+			BackgroundTransparency = 1,
+		}):Play()
+		TweenService:Create(toastLabel, TweenInfo.new(0.3), {
+			TextTransparency = 1,
+		}):Play()
+		task.delay(0.3, function()
+			toast:Destroy()
+		end)
 	end)
 end)
 
