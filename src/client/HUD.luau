@@ -149,6 +149,7 @@ function HUD.create()
 		{ name = "Collection", icon = "\u{1F4D6}", order = 3, color = UITheme.BTN_ORANGE, shadow = UITheme.BTN_ORANGE_SHADOW, center = true },
 		{ name = "Daily", icon = "\u{1F381}", order = 4, color = UITheme.BTN_BLUE, shadow = UITheme.BTN_BLUE_SHADOW },
 		{ name = "FreeSeed", icon = "\u{1F31F}", order = 5, color = UITheme.BTN_GREEN, shadow = UITheme.BTN_GREEN_SHADOW },
+		{ name = "Social", icon = "\u{1F465}", order = 6, color = UITheme.BTN_BLUE, shadow = UITheme.BTN_BLUE_SHADOW },
 	}
 
 	for _, tabInfo in tabs do
@@ -156,7 +157,7 @@ function HUD.create()
 
 		local tabFrame = Instance.new("TextButton")
 		tabFrame.Name = tabInfo.name .. "Tab"
-		tabFrame.Size = isCenter and UDim2.new(0.2, 0, 1, 12) or UDim2.new(0.18, 0, 1, -8)
+		tabFrame.Size = isCenter and UDim2.new(0.17, 0, 1, 12) or UDim2.new(0.15, 0, 1, -8)
 		tabFrame.Position = isCenter and UDim2.new(0, 0, 0, -8) or UDim2.new(0, 0, 0, 0)
 		tabFrame.BackgroundColor3 = isCenter and tabInfo.color or UITheme.BG_PRIMARY
 		tabFrame.Text = ""
@@ -215,7 +216,7 @@ function HUD.create()
 		local originalSize = tabFrame.Size
 		tabFrame.MouseButton1Down:Connect(function()
 			TweenService:Create(tabFrame, TweenInfo.new(0.05), {
-				Size = isCenter and UDim2.new(0.19, 0, 1, 10) or UDim2.new(0.17, 0, 1, -10),
+				Size = isCenter and UDim2.new(0.16, 0, 1, 10) or UDim2.new(0.14, 0, 1, -10),
 			}):Play()
 		end)
 		tabFrame.MouseButton1Up:Connect(function()

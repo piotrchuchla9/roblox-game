@@ -9,6 +9,7 @@ local CollectionBook = require(script.CollectionBook)
 local ShopUI = require(script.ShopUI)
 local DailyRewardsUI = require(script.DailyRewardsUI)
 local LeaderboardUI = require(script.LeaderboardUI)
+local SocialUI = require(script.SocialUI)
 local UITheme = require(script.UITheme)
 
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes", 10)
@@ -23,6 +24,7 @@ GardenUI.create()
 CollectionBook.create()
 ShopUI.create()
 DailyRewardsUI.create()
+SocialUI.create()
 
 -- Player data cache
 local playerData = nil
@@ -67,6 +69,10 @@ end)
 wireTab("Daily", function()
 	DailyRewardsUI.toggle()
 	if playerData then DailyRewardsUI.update(playerData) end
+end)
+
+wireTab("Social", function()
+	SocialUI.toggle()
 end)
 
 wireTab("FreeSeed", function()
