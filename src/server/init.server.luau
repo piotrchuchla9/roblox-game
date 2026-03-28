@@ -22,8 +22,12 @@ local DropSystem = require(script.DropSystem)
 local MonetizationManager = require(script.MonetizationManager)
 local DailyRewardManager = require(script.DailyRewardManager)
 local MapSetup = require(script.MapSetup)
+local PlotManager = require(script.PlotManager)
+local TeleportManager = require(script.TeleportManager)
+local TradeManager = require(script.TradeManager)
 
 MonetizationManager.init()
+TeleportManager.init()
 MapSetup.build()
 
 -- Helper: send updated data to client
@@ -65,7 +69,15 @@ Players.PlayerAdded:Connect(function(player)
 	if data then
 		updateLeaderstats(player, data)
 		syncData(player)
+
+		-- Allocate garden plot
+		PlotManager.allocate(player, data)
+		remotesFolder.PlotAllocated:FireClient(player, PlotManager.getSlotIndex(player))
 	end
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+	PlotManager.release(player)
 end)
 
 -- Plant seed
@@ -220,6 +232,104 @@ task.spawn(function()
 				end
 			end
 		end
+	end
+end)
+
+-- Search player (cross-server)
+remotesFolder.SearchPlayer.OnServerEvent:Connect(function(player, targetName: string)
+	TeleportManager.searchPlayer(player, targetName, function(result)
+		if result then
+			remotesFolder.TradeUpdate:FireClient(player, { type = "searchResult", data = result })
+		else
+			remotesFolder.TradeUpdate:FireClient(player, { type = "searchResult", data = nil })
+		end
+	end)
+end)
+
+-- Teleport to player
+remotesFolder.TeleportToPlayer.OnServerEvent:Connect(function(player, placeId: number, jobId: string)
+	TeleportManager.teleportToServer(player, placeId, jobId)
+end)
+
+-- Teleport home
+remotesFolder.TeleportHome.OnServerEvent:Connect(function(player)
+	TeleportManager.teleportHome(player)
+end)
+
+-- Initiate trade
+remotesFolder.InitiateTrade.OnServerEvent:Connect(function(player, targetUserId: number)
+	local targetPlayer = game:GetService("Players"):GetPlayerByUserId(targetUserId)
+	if not targetPlayer then return end
+
+	local tradeId = TradeManager.initiateTrade(player, targetPlayer)
+	if tradeId then
+		local trade = TradeManager.getTrade(player)
+		remotesFolder.TradeRequest:FireClient(player, trade)
+		remotesFolder.TradeRequest:FireClient(targetPlayer, trade)
+	end
+end)
+
+-- Update trade offer
+remotesFolder.UpdateTradeOffer.OnServerEvent:Connect(function(player, brainrotIds: {string})
+	if TradeManager.updateOffer(player, brainrotIds) then
+		local trade = TradeManager.getTrade(player)
+		local fromPlayer = game:GetService("Players"):GetPlayerByUserId(trade.fromUserId)
+		local toPlayer = game:GetService("Players"):GetPlayerByUserId(trade.toUserId)
+		if fromPlayer then remotesFolder.TradeUpdate:FireClient(fromPlayer, { type = "offerUpdate", data = trade }) end
+		if toPlayer then remotesFolder.TradeUpdate:FireClient(toPlayer, { type = "offerUpdate", data = trade }) end
+	end
+end)
+
+-- Confirm trade
+remotesFolder.ConfirmTrade.OnServerEvent:Connect(function(player)
+	local trade = TradeManager.getTrade(player)
+	if not trade then return end
+
+	local executed = TradeManager.confirmTrade(player)
+	local fromPlayer = game:GetService("Players"):GetPlayerByUserId(trade.fromUserId)
+	local toPlayer = game:GetService("Players"):GetPlayerByUserId(trade.toUserId)
+
+	if executed and not TradeManager.getTrade(player) then
+		-- Trade was executed and cleaned up
+		if fromPlayer then
+			syncData(fromPlayer)
+			remotesFolder.TradeUpdate:FireClient(fromPlayer, { type = "completed" })
+		end
+		if toPlayer then
+			syncData(toPlayer)
+			remotesFolder.TradeUpdate:FireClient(toPlayer, { type = "completed" })
+		end
+	else
+		-- Partial confirmation
+		trade = TradeManager.getTrade(player)
+		if trade then
+			if fromPlayer then remotesFolder.TradeUpdate:FireClient(fromPlayer, { type = "confirmUpdate", data = trade }) end
+			if toPlayer then remotesFolder.TradeUpdate:FireClient(toPlayer, { type = "confirmUpdate", data = trade }) end
+		end
+	end
+end)
+
+-- Cancel trade
+remotesFolder.CancelTrade.OnServerEvent:Connect(function(player)
+	local trade = TradeManager.getTrade(player)
+	if trade then
+		local fromPlayer = game:GetService("Players"):GetPlayerByUserId(trade.fromUserId)
+		local toPlayer = game:GetService("Players"):GetPlayerByUserId(trade.toUserId)
+		TradeManager.cancelTrade(trade.id)
+		if fromPlayer then remotesFolder.TradeUpdate:FireClient(fromPlayer, { type = "cancelled" }) end
+		if toPlayer then remotesFolder.TradeUpdate:FireClient(toPlayer, { type = "cancelled" }) end
+	end
+end)
+
+-- Like garden
+remotesFolder.LikeGarden.OnServerEvent:Connect(function(player, targetUserId: number)
+	local targetPlayer = game:GetService("Players"):GetPlayerByUserId(targetUserId)
+	if not targetPlayer or targetPlayer == player then return end
+
+	local targetData = PlayerDataManager.getData(targetPlayer)
+	if targetData then
+		targetData.stats.gardenLikes = (targetData.stats.gardenLikes or 0) + 1
+		syncData(targetPlayer)
 	end
 end)
 
