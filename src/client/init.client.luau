@@ -84,7 +84,7 @@ wireTab("FreeSeed", function()
 	local toastFrame = Instance.new("Frame")
 	toastFrame.Size = UDim2.new(0, 180, 0, 36)
 	toastFrame.Position = UDim2.new(0.5, -90, 0, -40)
-	toastFrame.BackgroundColor3 = UITheme.BG_CARD
+	toastFrame.BackgroundColor3 = UITheme.BG_PRIMARY
 	toastFrame.BackgroundTransparency = 0.1
 	toastFrame.Parent = toast
 
@@ -92,13 +92,17 @@ wireTab("FreeSeed", function()
 	toastCorner.CornerRadius = UDim.new(0, 10)
 	toastCorner.Parent = toastFrame
 
-	UITheme.createNeonBorder(toastFrame, UITheme.GREEN, 1)
+	local toastStroke = Instance.new("UIStroke")
+	toastStroke.Color = UITheme.BTN_GREEN
+	toastStroke.Thickness = 2
+	toastStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	toastStroke.Parent = toastFrame
 
 	local toastLabel = Instance.new("TextLabel")
 	toastLabel.Size = UDim2.new(1, 0, 1, 0)
 	toastLabel.BackgroundTransparency = 1
 	toastLabel.Text = "🌱 +1 Seed!"
-	toastLabel.TextColor3 = UITheme.GREEN
+	toastLabel.TextColor3 = UITheme.BTN_GREEN
 	toastLabel.TextSize = 14
 	toastLabel.Font = UITheme.FONT_BOLD
 	toastLabel.Parent = toastFrame
