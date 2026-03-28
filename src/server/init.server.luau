@@ -16,19 +16,22 @@ for _, remoteName in Remotes do
 end
 
 -- Load managers
-local PlayerDataManager = require(script.PlayerDataManager)
-local GardenManager = require(script.GardenManager)
-local DropSystem = require(script.DropSystem)
-local MonetizationManager = require(script.MonetizationManager)
-local DailyRewardManager = require(script.DailyRewardManager)
-local MapSetup = require(script.MapSetup)
-local PlotManager = require(script.PlotManager)
-local TeleportManager = require(script.TeleportManager)
-local TradeManager = require(script.TradeManager)
+local PlayerDataManager = require(script.Parent.PlayerDataManager)
+local GardenManager = require(script.Parent.GardenManager)
+local DropSystem = require(script.Parent.DropSystem)
+local MonetizationManager = require(script.Parent.MonetizationManager)
+local DailyRewardManager = require(script.Parent.DailyRewardManager)
+local MapSetup = require(script.Parent.MapSetup)
+local PlotManager = require(script.Parent.PlotManager)
+local TeleportManager = require(script.Parent.TeleportManager)
+local TradeManager = require(script.Parent.TradeManager)
 
 MonetizationManager.init()
 TeleportManager.init()
-MapSetup.build()
+task.spawn(function()
+	MapSetup.build()
+	print("[Server] Map built")
+end)
 
 -- Helper: send updated data to client
 local function syncData(player: Player)

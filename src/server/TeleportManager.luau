@@ -19,36 +19,35 @@ function TeleportManager.init()
 		homeJobIds[player.UserId] = nil
 	end)
 
-	-- Listen for player search requests from other servers
-	local success, err = pcall(function()
-		MessagingService:SubscribeAsync(SEARCH_TOPIC, function(message)
-			local data = message.Data
-			local targetName = data.targetName
-			local requesterJobId = data.requesterJobId
+	-- Non-blocking subscribe (MessagingService can hang in Studio)
+	task.spawn(function()
+		local success, err = pcall(function()
+			MessagingService:SubscribeAsync(SEARCH_TOPIC, function(message)
+				local data = message.Data
+				local targetName = data.targetName
 
-			-- Check if target player is on this server
-			for _, player in Players:GetPlayers() do
-				if string.lower(player.Name) == string.lower(targetName)
-					or string.lower(player.DisplayName) == string.lower(targetName) then
-					-- Found! Send response
-					pcall(function()
-						MessagingService:PublishAsync(RESPONSE_TOPIC, {
-							targetName = player.Name,
-							targetDisplayName = player.DisplayName,
-							jobId = game.JobId,
-							placeId = game.PlaceId,
-							requesterJobId = requesterJobId,
-						})
-					end)
-					return
+				for _, player in Players:GetPlayers() do
+					if string.lower(player.Name) == string.lower(targetName)
+						or string.lower(player.DisplayName) == string.lower(targetName) then
+						pcall(function()
+							MessagingService:PublishAsync(RESPONSE_TOPIC, {
+								targetName = player.Name,
+								targetDisplayName = player.DisplayName,
+								jobId = game.JobId,
+								placeId = game.PlaceId,
+								requesterJobId = data.requesterJobId,
+							})
+						end)
+						return
+					end
 				end
-			end
+			end)
 		end)
-	end)
 
-	if not success then
-		warn("[TeleportManager] Failed to subscribe to search topic: " .. tostring(err))
-	end
+		if not success then
+			warn("[TeleportManager] Failed to subscribe: " .. tostring(err))
+		end
+	end)
 end
 
 function TeleportManager.searchPlayer(requester: Player, targetName: string, callback: (result: any?) -> ())
