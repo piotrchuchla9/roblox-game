@@ -132,4 +132,48 @@ wireTab("FreeSeed", function()
 	end)
 end)
 
+-- Trade ProximityPrompt on other player characters
+local function setupTradePrompt(character: Model)
+	-- Don't add to self
+	if character == Players.LocalPlayer.Character then return end
+
+	local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 5)
+	if not humanoidRootPart then return end
+
+	-- Check if prompt already exists
+	if humanoidRootPart:FindFirstChild("TradePrompt") then return end
+
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "TradePrompt"
+	prompt.ActionText = "Trade"
+	prompt.ObjectText = ""
+	prompt.MaxActivationDistance = 8
+	prompt.HoldDuration = 0
+	prompt.Parent = humanoidRootPart
+
+	prompt.Triggered:Connect(function(triggerPlayer)
+		if triggerPlayer == Players.LocalPlayer then
+			-- Get the owner of this character
+			for _, otherPlayer in Players:GetPlayers() do
+				if otherPlayer.Character == character then
+					remotesFolder.InitiateTrade:FireServer(otherPlayer.UserId)
+					break
+				end
+			end
+		end
+	end)
+end
+
+-- Setup prompts for existing and new characters
+for _, otherPlayer in Players:GetPlayers() do
+	if otherPlayer ~= Players.LocalPlayer and otherPlayer.Character then
+		setupTradePrompt(otherPlayer.Character)
+	end
+	otherPlayer.CharacterAdded:Connect(setupTradePrompt)
+end
+
+Players.PlayerAdded:Connect(function(otherPlayer)
+	otherPlayer.CharacterAdded:Connect(setupTradePrompt)
+end)
+
 print("[Client] Grow a Brainrot client initialized")
