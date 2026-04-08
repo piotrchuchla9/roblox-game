@@ -1,6 +1,8 @@
 -- MapSetup: Creates the Candy Pastel circular island world
 local Workspace = game:GetService("Workspace")
 local Lighting = game:GetService("Lighting")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Config = require(ReplicatedStorage.Shared.Config)
 
 local MapSetup = {}
 
@@ -109,7 +111,7 @@ function MapSetup.build()
 	local terrain = Workspace.Terrain
 	terrain:Clear()
 
-	local ISLAND_RADIUS = 150
+	local ISLAND_RADIUS = Config.ISLAND_RADIUS
 	local resolution = 4
 
 	for x = -ISLAND_RADIUS, ISLAND_RADIUS, resolution do
@@ -143,10 +145,10 @@ function MapSetup.build()
 		end
 	end
 
-	-- Stone paths
-	for i = 0, 29 do
-		local angle = (i / 30) * math.pi * 2
-		for d = 45, 100, resolution do
+	-- Stone paths (8 paths to plots)
+	for i = 0, Config.PLOT_COUNT - 1 do
+		local angle = (i / Config.PLOT_COUNT) * math.pi * 2
+		for d = Config.HUB_RADIUS, Config.PLOT_RING_RADIUS - 5, resolution do
 			local px = math.cos(angle) * d
 			local pz = math.sin(angle) * d
 			local region = Region3.new(
@@ -202,26 +204,71 @@ function MapSetup.build()
 	shopText.Font = Enum.Font.GothamBold
 	shopText.Parent = shopSign
 
-	-- Leaderboard (blue)
+	-- Deco Shop (green/wood, opposite side of Shop)
+	local decoBase = makePart({
+		name = "DecoShopBuilding", size = Vector3.new(14, 10, 12),
+		position = Vector3.new(-25, 7, 0),
+		color = Color3.fromRGB(200, 230, 200), parent = hubFolder,
+	})
+	makePart({
+		name = "DecoShopRoof", size = Vector3.new(16, 2, 14),
+		position = Vector3.new(-25, 13, 0),
+		color = Color3.fromRGB(76, 153, 0), parent = hubFolder,
+	})
+	local decoSign = Instance.new("SurfaceGui")
+	decoSign.Name = "DecoSign"
+	decoSign.Face = Enum.NormalId.Front
+	decoSign.Parent = decoBase
+	local decoText = Instance.new("TextLabel")
+	decoText.Size = UDim2.new(1, 0, 0.4, 0)
+	decoText.Position = UDim2.new(0, 0, 0.1, 0)
+	decoText.BackgroundTransparency = 1
+	decoText.Text = "DECO SHOP"
+	decoText.TextColor3 = Color3.fromRGB(93, 64, 55)
+	decoText.TextScaled = true
+	decoText.Font = Enum.Font.GothamBold
+	decoText.Parent = decoSign
+
+	-- ProximityPrompt: Shop
+	local shopPrompt = Instance.new("ProximityPrompt")
+	shopPrompt.Name = "ShopPrompt"
+	shopPrompt.ActionText = "Shop"
+	shopPrompt.ObjectText = ""
+	shopPrompt.MaxActivationDistance = Config.SHOP_PROMPT_DISTANCE
+	shopPrompt.HoldDuration = 0
+	shopPrompt.RequiresLineOfSight = false
+	shopPrompt.Parent = shopBase
+
+	-- ProximityPrompt: Deco Shop
+	local decoPrompt = Instance.new("ProximityPrompt")
+	decoPrompt.Name = "DecoShopPrompt"
+	decoPrompt.ActionText = "Deco Shop"
+	decoPrompt.ObjectText = ""
+	decoPrompt.MaxActivationDistance = Config.SHOP_PROMPT_DISTANCE
+	decoPrompt.HoldDuration = 0
+	decoPrompt.RequiresLineOfSight = false
+	decoPrompt.Parent = decoBase
+
+	-- Leaderboard (blue, behind fountain)
 	makePart({
 		name = "LeaderboardBuilding", size = Vector3.new(12, 10, 12),
-		position = Vector3.new(-25, 7, 0),
+		position = Vector3.new(0, 7, 25),
 		color = Color3.fromRGB(200, 225, 255), parent = hubFolder,
 	})
 	makePart({
 		name = "LeaderboardRoof", size = Vector3.new(14, 2, 14),
-		position = Vector3.new(-25, 13, 0),
+		position = Vector3.new(0, 13, 25),
 		color = Color3.fromRGB(33, 150, 243), parent = hubFolder,
 	})
 
-	-- Trend Radar (yellow billboard)
+	-- Trend Radar (yellow billboard, behind leaderboard)
 	local billboard = makePart({
 		name = "TrendRadar", size = Vector3.new(14, 8, 1),
-		position = Vector3.new(0, 8, 30),
+		position = Vector3.new(0, 8, 38),
 		color = Color3.fromRGB(255, 245, 186), parent = hubFolder,
 	})
-	makePart({ name = "TrendPost1", size = Vector3.new(1, 12, 1), position = Vector3.new(-6, 6, 30), color = Color3.fromRGB(139, 90, 43), material = Enum.Material.Wood, parent = hubFolder })
-	makePart({ name = "TrendPost2", size = Vector3.new(1, 12, 1), position = Vector3.new(6, 6, 30), color = Color3.fromRGB(139, 90, 43), material = Enum.Material.Wood, parent = hubFolder })
+	makePart({ name = "TrendPost1", size = Vector3.new(1, 12, 1), position = Vector3.new(-6, 6, 38), color = Color3.fromRGB(139, 90, 43), material = Enum.Material.Wood, parent = hubFolder })
+	makePart({ name = "TrendPost2", size = Vector3.new(1, 12, 1), position = Vector3.new(6, 6, 38), color = Color3.fromRGB(139, 90, 43), material = Enum.Material.Wood, parent = hubFolder })
 
 	local surfaceGui = Instance.new("SurfaceGui")
 	surfaceGui.Name = "TrendDisplay"
@@ -260,24 +307,24 @@ function MapSetup.build()
 	trendWeekly.Parent = surfaceGui
 
 	-- Benches
-	for i = 0, 3 do
-		local angle = (i / 4) * math.pi * 2 + math.pi / 4
-		local bx = math.cos(angle) * 20
-		local bz = math.sin(angle) * 20
+	for i = 0, 1 do
+		local angle = (i / 2) * math.pi * 2 + math.pi / 4
+		local bx = math.cos(angle) * 18
+		local bz = math.sin(angle) * 18
 		makePart({ name = "Bench" .. i, size = Vector3.new(4, 1.5, 1.5), position = Vector3.new(bx, 3, bz), color = Color3.fromRGB(139, 90, 43), material = Enum.Material.Wood, parent = hubFolder })
 	end
 
 	-- Balloons
-	for i = 1, 6 do
-		local angle = (i / 6) * math.pi * 2
-		makeBalloon(Vector3.new(math.cos(angle) * 32, 2.5, math.sin(angle) * 32), decoFolder)
+	for i = 1, 3 do
+		local angle = (i / 3) * math.pi * 2
+		makeBalloon(Vector3.new(math.cos(angle) * 25, 2.5, math.sin(angle) * 25), decoFolder)
 	end
 
 	-- Lampposts
-	for i = 0, 5 do
-		local angle = (i / 6) * math.pi * 2
-		local lx = math.cos(angle) * 38
-		local lz = math.sin(angle) * 38
+	for i = 0, 3 do
+		local angle = (i / 4) * math.pi * 2
+		local lx = math.cos(angle) * 30
+		local lz = math.sin(angle) * 30
 		makePart({ name = "LampPole" .. i, size = Vector3.new(0.6, 8, 0.6), position = Vector3.new(lx, 6, lz), color = Color3.fromRGB(200, 200, 200), material = Enum.Material.Metal, parent = decoFolder })
 		local lamp = makePart({ name = "LampLight" .. i, size = Vector3.new(2, 1, 2), position = Vector3.new(lx, 10.5, lz), color = Color3.fromRGB(255, 245, 186), material = Enum.Material.Neon, parent = decoFolder })
 		local pointLight = Instance.new("PointLight")
@@ -287,19 +334,19 @@ function MapSetup.build()
 		pointLight.Parent = lamp
 	end
 
-	-- === PLOT MARKERS (30 slots) ===
+	-- === PLOT MARKERS (8 slots) ===
 	local plotsFolder = Instance.new("Folder")
 	plotsFolder.Name = "PlotSlots"
 	plotsFolder.Parent = Workspace
 
-	for i = 0, 29 do
-		local angle = (i / 30) * math.pi * 2
-		local px = math.cos(angle) * 110
-		local pz = math.sin(angle) * 110
+	for i = 0, Config.PLOT_COUNT - 1 do
+		local angle = (i / Config.PLOT_COUNT) * math.pi * 2
+		local px = math.cos(angle) * Config.PLOT_RING_RADIUS
+		local pz = math.sin(angle) * Config.PLOT_RING_RADIUS
 
 		local marker = Instance.new("Part")
 		marker.Name = "PlotSlot" .. i
-		marker.Size = Vector3.new(20, 0.2, 20)
+		marker.Size = Vector3.new(Config.PLOT_SIZE, 0.2, Config.PLOT_SIZE)
 		marker.Position = Vector3.new(px, 2, pz)
 		marker.Anchored = true
 		marker.Transparency = 1
@@ -308,7 +355,7 @@ function MapSetup.build()
 
 		makePart({
 			name = "PlotFloor",
-			size = Vector3.new(18, 0.3, 18),
+			size = Vector3.new(Config.PLOT_SIZE - 2, 0.3, Config.PLOT_SIZE - 2),
 			position = Vector3.new(px, 2.2, pz),
 			color = Color3.fromRGB(200, 180, 140),
 			material = Enum.Material.WoodPlanks,
@@ -318,32 +365,35 @@ function MapSetup.build()
 		})
 	end
 
-	-- === TREES ===
+	-- === TREES (reduced) ===
 	math.randomseed(42)
-	for i = 1, 40 do
+	for i = 1, 15 do
 		local angle = math.random() * math.pi * 2
-		local dist = 50 + math.random() * 80
+		local dist = 30 + math.random() * 50
 		local tx = math.cos(angle) * dist
 		local tz = math.sin(angle) * dist
 		local tooClose = false
-		for s = 0, 29 do
-			local sa = (s / 30) * math.pi * 2
-			local sx = math.cos(sa) * 110
-			local sz = math.sin(sa) * 110
+		for s = 0, Config.PLOT_COUNT - 1 do
+			local sa = (s / Config.PLOT_COUNT) * math.pi * 2
+			local sx = math.cos(sa) * Config.PLOT_RING_RADIUS
+			local sz = math.sin(sa) * Config.PLOT_RING_RADIUS
 			if (tx - sx)^2 + (tz - sz)^2 < 15^2 then
 				tooClose = true
 				break
 			end
+		end
+		if (tx^2 + tz^2) < Config.HUB_RADIUS^2 then
+			tooClose = true
 		end
 		if not tooClose then
 			makeTree(Vector3.new(tx, 2, tz), decoFolder)
 		end
 	end
 
-	-- === FLOWERS ===
-	for i = 1, 60 do
+	-- === FLOWERS (reduced) ===
+	for i = 1, 20 do
 		local angle = math.random() * math.pi * 2
-		local dist = 15 + math.random() * 120
+		local dist = 10 + math.random() * 70
 		makeFlower(Vector3.new(math.cos(angle) * dist + math.random(-3, 3), 2, math.sin(angle) * dist + math.random(-3, 3)), decoFolder)
 	end
 
@@ -418,7 +468,19 @@ function MapSetup.build()
 	sunRays.Spread = 0.5
 	sunRays.Parent = Lighting
 
-	print("[Server] Candy Pastel island built successfully")
+	local cols = Config.PLOT_COUNT
+	local ringR = Config.PLOT_RING_RADIUS
+	print("[Server] Map built — " .. cols .. " plots on " .. ringR .. " stud ring, island radius " .. ISLAND_RADIUS)
+end
+
+function MapSetup.getShopPart(): Part?
+	local hub = Workspace:FindFirstChild("Hub")
+	return hub and hub:FindFirstChild("ShopBuilding")
+end
+
+function MapSetup.getDecoShopPart(): Part?
+	local hub = Workspace:FindFirstChild("Hub")
+	return hub and hub:FindFirstChild("DecoShopBuilding")
 end
 
 return MapSetup
