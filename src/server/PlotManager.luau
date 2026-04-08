@@ -11,13 +11,13 @@ local plotSlots: { [number]: Player? } = {}
 local playerPlots: { [number]: number } = {} -- userId -> slotIndex
 
 -- Initialize 30 empty slots
-for i = 0, Config.MAX_PLAYERS_PER_SERVER - 1 do
+for i = 0, Config.PLOT_COUNT - 1 do
 	plotSlots[i] = nil
 end
 
 function PlotManager.allocate(player: Player, data: any): number?
 	-- Find first free slot
-	for i = 0, Config.MAX_PLAYERS_PER_SERVER - 1 do
+	for i = 0, Config.PLOT_COUNT - 1 do
 		if plotSlots[i] == nil then
 			plotSlots[i] = player
 			playerPlots[player.UserId] = i
