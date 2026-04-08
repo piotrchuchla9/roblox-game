@@ -70,9 +70,10 @@ Config.DAILY_REWARD_COOLDOWN = 72000 -- 20 hours
 Config.LEADERBOARD_UPDATE_INTERVAL = 60
 
 -- Multiplayer / Plots
-Config.MAX_PLAYERS_PER_SERVER = 30
+Config.MAX_PLAYERS_PER_SERVER = 8
+Config.PLOT_COUNT = 8
 Config.PLOT_SIZE = 20 -- studs per side
-Config.PLOT_RING_RADIUS = 110 -- studs from center to plot ring
+Config.PLOT_RING_RADIUS = 65 -- studs from center to plot ring
 Config.PLOT_FADE_TIME = 10 -- seconds for plot fade out on leave
 
 -- Trading
@@ -84,7 +85,23 @@ Config.TRADE_PROXIMITY = 8 -- studs range for ProximityPrompt
 Config.LIKE_COOLDOWN = 86400 -- 24 hours between likes per player pair
 
 -- Island
-Config.ISLAND_RADIUS = 150 -- studs
+Config.ISLAND_RADIUS = 90 -- studs
 Config.HUB_RADIUS = 40 -- studs
+
+-- Deco Shop
+Config.DECO_ITEMS = {
+	{ id = "flower_pink", name = "Pink Flowers", icon = "\u{1F338}", price = 50, category = "Flowers" },
+	{ id = "flower_blue", name = "Blue Flowers", icon = "\u{1F4AE}", price = 50, category = "Flowers" },
+	{ id = "flower_yellow", name = "Sunflower", icon = "\u{1F33B}", price = 75, category = "Flowers" },
+	{ id = "fence_white", name = "White Picket Fence", icon = "\u{1F3E1}", price = 200, category = "Fences" },
+	{ id = "fence_bamboo", name = "Bamboo Fence", icon = "\u{1F38D}", price = 300, category = "Fences" },
+	{ id = "lamp_garden", name = "Garden Lamp", icon = "\u{1F4A1}", price = 350, category = "Lighting" },
+	{ id = "lamp_fairy", name = "Fairy Lights", icon = "\u{2728}", price = 500, category = "Lighting" },
+	{ id = "statue_gnome", name = "Garden Gnome", icon = "\u{1F9D9}", price = 1000, category = "Statues" },
+	{ id = "statue_fountain", name = "Mini Fountain", icon = "\u{26F2}", price = 1500, category = "Statues" },
+}
+
+-- Shop ProximityPrompt
+Config.SHOP_PROMPT_DISTANCE = 10
 
 return Config
