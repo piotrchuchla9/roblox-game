@@ -176,4 +176,18 @@ function ShopUI.toggle()
 	end
 end
 
+function ShopUI.show()
+	if not visible then
+		visible = true
+		UITheme.tweenOpen(panel.screenGui)
+	end
+end
+
+function ShopUI.hide()
+	if visible then
+		visible = false
+		UITheme.tweenClose(panel.screenGui)
+	end
+end
+
 return ShopUI

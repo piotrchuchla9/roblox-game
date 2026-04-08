@@ -7,6 +7,7 @@ local GardenUI = require(script.GardenUI)
 local DropAnimation = require(script.DropAnimation)
 local CollectionBook = require(script.CollectionBook)
 local ShopUI = require(script.ShopUI)
+local DecoShopUI = require(script.DecoShopUI)
 local DailyRewardsUI = require(script.DailyRewardsUI)
 local LeaderboardUI = require(script.LeaderboardUI)
 local SocialUI = require(script.SocialUI)
@@ -23,6 +24,7 @@ HUD.create()
 GardenUI.create()
 CollectionBook.create()
 ShopUI.create()
+DecoShopUI.create()
 DailyRewardsUI.create()
 SocialUI.create()
 
@@ -55,10 +57,6 @@ end
 wireTab("Garden", function()
 	GardenUI.toggle()
 	if playerData then GardenUI.update(playerData) end
-end)
-
-wireTab("Shop", function()
-	ShopUI.toggle()
 end)
 
 wireTab("Collection", function()
@@ -174,6 +172,15 @@ end
 
 Players.PlayerAdded:Connect(function(otherPlayer)
 	otherPlayer.CharacterAdded:Connect(setupTradePrompt)
+end)
+
+-- Shop via ProximityPrompt
+remotesFolder.OpenShop.OnClientEvent:Connect(function()
+	ShopUI.show()
+end)
+
+remotesFolder.OpenDecoShop.OnClientEvent:Connect(function()
+	DecoShopUI.show()
 end)
 
 print("[Client] Grow a Brainrot client initialized")

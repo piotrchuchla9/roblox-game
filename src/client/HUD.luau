@@ -145,11 +145,10 @@ function HUD.create()
 
 	local tabs = {
 		{ name = "Garden", icon = "\u{1F331}", order = 1, color = UITheme.BTN_GREEN, shadow = UITheme.BTN_GREEN_SHADOW },
-		{ name = "Shop", icon = "\u{1F6D2}", order = 2, color = UITheme.BTN_PINK, shadow = UITheme.BTN_PINK_SHADOW },
-		{ name = "Collection", icon = "\u{1F4D6}", order = 3, color = UITheme.BTN_ORANGE, shadow = UITheme.BTN_ORANGE_SHADOW, center = true },
-		{ name = "Daily", icon = "\u{1F381}", order = 4, color = UITheme.BTN_BLUE, shadow = UITheme.BTN_BLUE_SHADOW },
-		{ name = "FreeSeed", icon = "\u{1F31F}", order = 5, color = UITheme.BTN_GREEN, shadow = UITheme.BTN_GREEN_SHADOW },
-		{ name = "Social", icon = "\u{1F465}", order = 6, color = UITheme.BTN_BLUE, shadow = UITheme.BTN_BLUE_SHADOW },
+		{ name = "Collection", icon = "\u{1F4D6}", order = 2, color = UITheme.BTN_ORANGE, shadow = UITheme.BTN_ORANGE_SHADOW, center = true },
+		{ name = "Daily", icon = "\u{1F381}", order = 3, color = UITheme.BTN_BLUE, shadow = UITheme.BTN_BLUE_SHADOW },
+		{ name = "FreeSeed", icon = "\u{1F31F}", order = 4, color = UITheme.BTN_GREEN, shadow = UITheme.BTN_GREEN_SHADOW },
+		{ name = "Social", icon = "\u{1F465}", order = 5, color = UITheme.BTN_BLUE, shadow = UITheme.BTN_BLUE_SHADOW },
 	}
 
 	for _, tabInfo in tabs do
