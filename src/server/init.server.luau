@@ -31,6 +31,27 @@ TeleportManager.init()
 task.spawn(function()
 	MapSetup.build()
 	print("[Server] Map built")
+
+	-- Wire shop ProximityPrompts
+	local shopPart = MapSetup.getShopPart()
+	if shopPart then
+		local prompt = shopPart:FindFirstChild("ShopPrompt")
+		if prompt then
+			prompt.Triggered:Connect(function(player)
+				remotesFolder.OpenShop:FireClient(player)
+			end)
+		end
+	end
+
+	local decoPart = MapSetup.getDecoShopPart()
+	if decoPart then
+		local prompt = decoPart:FindFirstChild("DecoShopPrompt")
+		if prompt then
+			prompt.Triggered:Connect(function(player)
+				remotesFolder.OpenDecoShop:FireClient(player)
+			end)
+		end
+	end
 end)
 
 -- Helper: send updated data to client
@@ -334,6 +355,31 @@ remotesFolder.LikeGarden.OnServerEvent:Connect(function(player, targetUserId: nu
 		targetData.stats.gardenLikes = (targetData.stats.gardenLikes or 0) + 1
 		syncData(targetPlayer)
 	end
+end)
+
+-- Buy decoration
+remotesFolder.BuyDeco.OnServerEvent:Connect(function(player, decoId: string)
+	local data = PlayerDataManager.getData(player)
+	if not data then return end
+
+	local decoItem = nil
+	for _, item in Config.DECO_ITEMS do
+		if item.id == decoId then
+			decoItem = item
+			break
+		end
+	end
+	if not decoItem then return end
+
+	if not PlayerDataManager.spendCurrency(data, "seeds", decoItem.price) then return end
+
+	table.insert(data.backpack, {
+		id = decoItem.id,
+		name = decoItem.name,
+		obtainedAt = os.time(),
+	})
+
+	syncData(player)
 end)
 
 print("[Server] Grow a Brainrot server initialized")
