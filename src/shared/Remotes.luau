@@ -6,6 +6,8 @@ local Remotes = {
 	PlotReleased = "PlotReleased",
 	TradeRequest = "TradeRequest",
 	TradeUpdate = "TradeUpdate",
+	OpenShop = "OpenShop",
+	OpenDecoShop = "OpenDecoShop",
 
 	-- Client -> Server
 	PlantSeed = "PlantSeed",
@@ -25,6 +27,7 @@ local Remotes = {
 	ConfirmTrade = "ConfirmTrade",
 	CancelTrade = "CancelTrade",
 	LikeGarden = "LikeGarden",
+	BuyDeco = "BuyDeco",
 }
 
 return Remotes
