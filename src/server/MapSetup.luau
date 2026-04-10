@@ -1,10 +1,22 @@
--- MapSetup: Creates the Candy Pastel circular island world
+-- MapSetup: Creates the Candy Pastel island world with 3x3 plot grid
 local Workspace = game:GetService("Workspace")
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage.Shared.Config)
 
 local MapSetup = {}
+
+-- Returns world position for plot index i (0-based) on a 3x3 grid
+local function getPlotPosition(i: number): Vector3
+	local cols = Config.GRID_COLS
+	local spacing = Config.GRID_SPACING
+	local row = math.floor(i / cols)
+	local col = i % cols
+	local offset = (cols - 1) * spacing / 2
+	local x = col * spacing - offset
+	local z = row * spacing - offset
+	return Vector3.new(x, 2, z)
+end
 
 local function makePart(config): Part
 	local part = Instance.new("Part")
@@ -145,15 +157,32 @@ function MapSetup.build()
 		end
 	end
 
-	-- Stone paths (8 paths to plots)
-	for i = 0, Config.PLOT_COUNT - 1 do
-		local angle = (i / Config.PLOT_COUNT) * math.pi * 2
-		for d = Config.HUB_RADIUS, Config.PLOT_RING_RADIUS - 5, resolution do
-			local px = math.cos(angle) * d
-			local pz = math.sin(angle) * d
+	-- Stone paths (grid rows and columns between plots)
+	local cols = Config.GRID_COLS
+	local spacing = Config.GRID_SPACING
+	local gridOffset = (cols - 1) * spacing / 2
+	-- Horizontal paths
+	for row = 0, cols - 1 do
+		local z = row * spacing - gridOffset
+		local xMin = -gridOffset - spacing / 2
+		local xMax = gridOffset + spacing / 2
+		for px = xMin, xMax, resolution do
 			local region = Region3.new(
-				Vector3.new(px - 2, -1, pz - 2),
-				Vector3.new(px + 2, 2.5, pz + 2)
+				Vector3.new(px - 2, -1, z - 2),
+				Vector3.new(px + 2, 2.5, z + 2)
+			)
+			terrain:FillRegion(region:ExpandToGrid(resolution), resolution, Enum.Material.Slate)
+		end
+	end
+	-- Vertical paths
+	for col = 0, cols - 1 do
+		local x = col * spacing - gridOffset
+		local zMin = -gridOffset - spacing / 2
+		local zMax = gridOffset + spacing / 2
+		for pz = zMin, zMax, resolution do
+			local region = Region3.new(
+				Vector3.new(x - 2, -1, pz - 2),
+				Vector3.new(x + 2, 2.5, pz + 2)
 			)
 			terrain:FillRegion(region:ExpandToGrid(resolution), resolution, Enum.Material.Slate)
 		end
@@ -261,50 +290,62 @@ function MapSetup.build()
 		color = Color3.fromRGB(33, 150, 243), parent = hubFolder,
 	})
 
-	-- Trend Radar (yellow billboard, behind leaderboard)
-	local billboard = makePart({
-		name = "TrendRadar", size = Vector3.new(14, 8, 1),
-		position = Vector3.new(0, 8, 38),
-		color = Color3.fromRGB(255, 245, 186), parent = hubFolder,
-	})
-	makePart({ name = "TrendPost1", size = Vector3.new(1, 12, 1), position = Vector3.new(-6, 6, 38), color = Color3.fromRGB(139, 90, 43), material = Enum.Material.Wood, parent = hubFolder })
-	makePart({ name = "TrendPost2", size = Vector3.new(1, 12, 1), position = Vector3.new(6, 6, 38), color = Color3.fromRGB(139, 90, 43), material = Enum.Material.Wood, parent = hubFolder })
+	-- Trend Radar banners (4 billboards, one per map side)
+	local trendFolder = Instance.new("Folder")
+	trendFolder.Name = "TrendRadars"
+	trendFolder.Parent = Workspace
 
-	local surfaceGui = Instance.new("SurfaceGui")
-	surfaceGui.Name = "TrendDisplay"
-	surfaceGui.Face = Enum.NormalId.Back
-	surfaceGui.Parent = billboard
+	local BORDER = ISLAND_RADIUS - 10
+	local trendBanners = {
+		{ name = "TrendRadarNorth", pos = Vector3.new(0, 70, BORDER), face = Enum.NormalId.Back, boardSize = Vector3.new(300, 125, 1) },
+		{ name = "TrendRadarSouth", pos = Vector3.new(0, 70, -BORDER), face = Enum.NormalId.Front, boardSize = Vector3.new(300, 125, 1) },
+		{ name = "TrendRadarEast", pos = Vector3.new(BORDER, 70, 0), face = Enum.NormalId.Left, boardSize = Vector3.new(1, 125, 300) },
+		{ name = "TrendRadarWest", pos = Vector3.new(-BORDER, 70, 0), face = Enum.NormalId.Right, boardSize = Vector3.new(1, 125, 300) },
+	}
 
-	local trendTitle = Instance.new("TextLabel")
-	trendTitle.Size = UDim2.new(1, 0, 0.3, 0)
-	trendTitle.BackgroundTransparency = 1
-	trendTitle.Text = "TREND RADAR"
-	trendTitle.TextColor3 = Color3.fromRGB(93, 64, 55)
-	trendTitle.TextScaled = true
-	trendTitle.Font = Enum.Font.GothamBold
-	trendTitle.Parent = surfaceGui
+	for _, info in trendBanners do
+		local billboard = makePart({
+			name = info.name, size = info.boardSize,
+			position = info.pos,
+			color = Color3.fromRGB(255, 245, 186), parent = trendFolder,
+		})
 
-	local trendCurrent = Instance.new("TextLabel")
-	trendCurrent.Name = "CurrentTrend"
-	trendCurrent.Size = UDim2.new(1, 0, 0.4, 0)
-	trendCurrent.Position = UDim2.new(0, 0, 0.3, 0)
-	trendCurrent.BackgroundTransparency = 1
-	trendCurrent.Text = "Season 1: OG Brainrot"
-	trendCurrent.TextColor3 = Color3.fromRGB(233, 30, 99)
-	trendCurrent.TextScaled = true
-	trendCurrent.Font = Enum.Font.GothamBold
-	trendCurrent.Parent = surfaceGui
+		local surfaceGui = Instance.new("SurfaceGui")
+		surfaceGui.Name = "TrendDisplay"
+		surfaceGui.Face = info.face
+		surfaceGui.Parent = billboard
 
-	local trendWeekly = Instance.new("TextLabel")
-	trendWeekly.Name = "WeeklyBrainrot"
-	trendWeekly.Size = UDim2.new(1, 0, 0.2, 0)
-	trendWeekly.Position = UDim2.new(0, 0, 0.75, 0)
-	trendWeekly.BackgroundTransparency = 1
-	trendWeekly.Text = "Weekly: Bombardiro Crocodilo"
-	trendWeekly.TextColor3 = Color3.fromRGB(33, 150, 243)
-	trendWeekly.TextScaled = true
-	trendWeekly.Font = Enum.Font.Gotham
-	trendWeekly.Parent = surfaceGui
+		local trendTitle = Instance.new("TextLabel")
+		trendTitle.Size = UDim2.new(1, 0, 0.3, 0)
+		trendTitle.BackgroundTransparency = 1
+		trendTitle.Text = "TREND RADAR"
+		trendTitle.TextColor3 = Color3.fromRGB(93, 64, 55)
+		trendTitle.TextScaled = true
+		trendTitle.Font = Enum.Font.GothamBold
+		trendTitle.Parent = surfaceGui
+
+		local trendCurrent = Instance.new("TextLabel")
+		trendCurrent.Name = "CurrentTrend"
+		trendCurrent.Size = UDim2.new(1, 0, 0.4, 0)
+		trendCurrent.Position = UDim2.new(0, 0, 0.3, 0)
+		trendCurrent.BackgroundTransparency = 1
+		trendCurrent.Text = "Season 1: OG Brainrot"
+		trendCurrent.TextColor3 = Color3.fromRGB(233, 30, 99)
+		trendCurrent.TextScaled = true
+		trendCurrent.Font = Enum.Font.GothamBold
+		trendCurrent.Parent = surfaceGui
+
+		local trendWeekly = Instance.new("TextLabel")
+		trendWeekly.Name = "WeeklyBrainrot"
+		trendWeekly.Size = UDim2.new(1, 0, 0.2, 0)
+		trendWeekly.Position = UDim2.new(0, 0, 0.75, 0)
+		trendWeekly.BackgroundTransparency = 1
+		trendWeekly.Text = "Weekly: Bombardiro Crocodilo"
+		trendWeekly.TextColor3 = Color3.fromRGB(33, 150, 243)
+		trendWeekly.TextScaled = true
+		trendWeekly.Font = Enum.Font.Gotham
+		trendWeekly.Parent = surfaceGui
+	end
 
 	-- Benches
 	for i = 0, 1 do
@@ -334,20 +375,18 @@ function MapSetup.build()
 		pointLight.Parent = lamp
 	end
 
-	-- === PLOT MARKERS (8 slots) ===
+	-- === PLOT MARKERS (3x3 grid) ===
 	local plotsFolder = Instance.new("Folder")
 	plotsFolder.Name = "PlotSlots"
 	plotsFolder.Parent = Workspace
 
 	for i = 0, Config.PLOT_COUNT - 1 do
-		local angle = (i / Config.PLOT_COUNT) * math.pi * 2
-		local px = math.cos(angle) * Config.PLOT_RING_RADIUS
-		local pz = math.sin(angle) * Config.PLOT_RING_RADIUS
+		local pos = getPlotPosition(i)
 
 		local marker = Instance.new("Part")
 		marker.Name = "PlotSlot" .. i
 		marker.Size = Vector3.new(Config.PLOT_SIZE, 0.2, Config.PLOT_SIZE)
-		marker.Position = Vector3.new(px, 2, pz)
+		marker.Position = pos
 		marker.Anchored = true
 		marker.Transparency = 1
 		marker.CanCollide = false
@@ -356,7 +395,7 @@ function MapSetup.build()
 		makePart({
 			name = "PlotFloor",
 			size = Vector3.new(Config.PLOT_SIZE - 2, 0.3, Config.PLOT_SIZE - 2),
-			position = Vector3.new(px, 2.2, pz),
+			position = pos + Vector3.new(0, 0.2, 0),
 			color = Color3.fromRGB(200, 180, 140),
 			material = Enum.Material.WoodPlanks,
 			transparency = 0.8,
@@ -374,10 +413,8 @@ function MapSetup.build()
 		local tz = math.sin(angle) * dist
 		local tooClose = false
 		for s = 0, Config.PLOT_COUNT - 1 do
-			local sa = (s / Config.PLOT_COUNT) * math.pi * 2
-			local sx = math.cos(sa) * Config.PLOT_RING_RADIUS
-			local sz = math.sin(sa) * Config.PLOT_RING_RADIUS
-			if (tx - sx)^2 + (tz - sz)^2 < 15^2 then
+			local spos = getPlotPosition(s)
+			if (tx - spos.X)^2 + (tz - spos.Z)^2 < 15^2 then
 				tooClose = true
 				break
 			end
@@ -468,9 +505,7 @@ function MapSetup.build()
 	sunRays.Spread = 0.5
 	sunRays.Parent = Lighting
 
-	local cols = Config.PLOT_COUNT
-	local ringR = Config.PLOT_RING_RADIUS
-	print("[Server] Map built — " .. cols .. " plots on " .. ringR .. " stud ring, island radius " .. ISLAND_RADIUS)
+	print("[Server] Map built — " .. Config.PLOT_COUNT .. " plots in " .. Config.GRID_COLS .. "x" .. Config.GRID_COLS .. " grid, island radius " .. ISLAND_RADIUS)
 end
 
 function MapSetup.getShopPart(): Part?

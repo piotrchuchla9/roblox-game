@@ -173,15 +173,21 @@ remotesFolder.ClaimDailyReward.OnServerEvent:Connect(function(player)
 	syncData(player)
 end)
 
--- Upgrade garden
-remotesFolder.UpgradeGarden.OnServerEvent:Connect(function(player)
+-- Upgrade garden (from UI button or ProximityPrompt)
+local function handleUpgradeGarden(player: Player)
 	local data = PlayerDataManager.getData(player)
 	if not data then return end
 
 	if GardenManager.upgradeBedCount(data) then
+		PlotManager.rebuildBeds(player, data)
 		syncData(player)
 	end
-end)
+end
+
+remotesFolder.UpgradeGarden.OnServerEvent:Connect(handleUpgradeGarden)
+
+-- Wire bed unlock ProximityPrompt
+PlotManager.onUnlockBed = handleUpgradeGarden
 
 -- Claim free seed (gives player a notification/confirmation that free seed is available)
 remotesFolder.ClaimFreeSeed.OnServerEvent:Connect(function(player)

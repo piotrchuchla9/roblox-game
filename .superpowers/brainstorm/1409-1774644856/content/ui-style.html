@@ -1,0 +1,102 @@
+<h2>Styl komponentów UI</h2>
+<p class="subtitle">Jak mają wyglądać przyciski, karty i panele w grze?</p>
+
+<div class="cards">
+  <div class="card" data-choice="bubbly" onclick="toggleSelect(this)">
+    <div class="card-image" style="height:260px;padding:20px;background:#FFF5F9;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center">
+      <!-- Bubbly panel mockup -->
+      <div style="background:white;border-radius:24px;padding:16px 24px;box-shadow:0 4px 20px rgba(255,130,180,0.2);width:80%;text-align:center">
+        <div style="font-size:14px;font-weight:bold;color:#333;margin-bottom:8px">🌱 Twój Ogród</div>
+        <div style="display:flex;gap:8px;justify-content:center">
+          <div style="background:#FFB5E8;border-radius:16px;padding:8px 16px;color:white;font-size:12px;font-weight:bold">Podlej 💧</div>
+          <div style="background:#B5DEFF;border-radius:16px;padding:8px 16px;color:white;font-size:12px;font-weight:bold">Zbierz ✨</div>
+        </div>
+      </div>
+      <!-- Card mockup -->
+      <div style="background:white;border-radius:20px;padding:12px;box-shadow:0 2px 12px rgba(0,0,0,0.08);width:70%;display:flex;gap:10px;align-items:center">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#E7FFAC,#B5DEFF);flex-shrink:0"></div>
+        <div>
+          <div style="font-size:11px;font-weight:bold;color:#333">Skibidi Toilet</div>
+          <div style="font-size:9px;color:#FFB5E8;font-weight:bold">★ Common</div>
+        </div>
+      </div>
+      <!-- Tab bar -->
+      <div style="background:white;border-radius:20px;padding:8px 16px;box-shadow:0 -2px 12px rgba(0,0,0,0.06);display:flex;gap:16px;width:80%;justify-content:center">
+        <div style="background:#FFB5E8;width:32px;height:32px;border-radius:10px"></div>
+        <div style="background:#eee;width:32px;height:32px;border-radius:10px"></div>
+        <div style="background:#eee;width:32px;height:32px;border-radius:10px"></div>
+        <div style="background:#eee;width:32px;height:32px;border-radius:10px"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A) Bubbly / Zaokrąglony</h3>
+      <p>Białe karty, duże zaokrąglenia (20-24px), miękkie cienie, pastelowe przyciski pill-shaped. Styl Adopt Me / iOS. Czysty i nowoczesny.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="chunky" onclick="toggleSelect(this)">
+    <div class="card-image" style="height:260px;padding:20px;background:#FFF8E1;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center">
+      <!-- Chunky panel mockup -->
+      <div style="background:#fff;border-radius:12px;border:3px solid #FFD166;padding:16px 24px;width:80%;text-align:center">
+        <div style="font-size:14px;font-weight:900;color:#5D4037;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">🌱 Twój Ogród</div>
+        <div style="display:flex;gap:8px;justify-content:center">
+          <div style="background:#4CAF50;border-radius:8px;padding:8px 16px;color:white;font-size:12px;font-weight:900;border-bottom:3px solid #388E3C">PODLEJ 💧</div>
+          <div style="background:#FF9800;border-radius:8px;padding:8px 16px;color:white;font-size:12px;font-weight:900;border-bottom:3px solid #E65100">ZBIERZ ✨</div>
+        </div>
+      </div>
+      <!-- Card mockup -->
+      <div style="background:#fff;border-radius:10px;border:2px solid #DCD3FF;padding:12px;width:70%;display:flex;gap:10px;align-items:center">
+        <div style="width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,#FFD166,#FF6F61);flex-shrink:0;border:2px solid #E65100"></div>
+        <div>
+          <div style="font-size:11px;font-weight:900;color:#5D4037">SKIBIDI TOILET</div>
+          <div style="font-size:9px;color:#FF9800;font-weight:bold">★ COMMON</div>
+        </div>
+      </div>
+      <!-- Tab bar -->
+      <div style="background:#fff;border-radius:10px;border:2px solid #FFD166;padding:8px 16px;display:flex;gap:16px;width:80%;justify-content:center">
+        <div style="background:#FF9800;width:32px;height:32px;border-radius:8px;border-bottom:2px solid #E65100"></div>
+        <div style="background:#f5f5f5;width:32px;height:32px;border-radius:8px;border:1px solid #ddd"></div>
+        <div style="background:#f5f5f5;width:32px;height:32px;border-radius:8px;border:1px solid #ddd"></div>
+        <div style="background:#f5f5f5;width:32px;height:32px;border-radius:8px;border:1px solid #ddd"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B) Chunky / Gruby</h3>
+      <p>Grube obramowania, "wciśnięte" przyciski z cieniem 3D, bold tekst, żywe kolory. Styl Roblox/Minecraft UI. Bardziej "gamingowy" i czytelny na małych ekranach.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="glassmorphism" onclick="toggleSelect(this)">
+    <div class="card-image" style="height:260px;padding:20px;background:linear-gradient(135deg,#FFB5E8,#B5DEFF,#E7FFAC);display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center">
+      <!-- Glass panel mockup -->
+      <div style="background:rgba(255,255,255,0.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:20px;border:1px solid rgba(255,255,255,0.8);padding:16px 24px;width:80%;text-align:center">
+        <div style="font-size:14px;font-weight:bold;color:#333;margin-bottom:8px">🌱 Twój Ogród</div>
+        <div style="display:flex;gap:8px;justify-content:center">
+          <div style="background:rgba(255,181,232,0.7);backdrop-filter:blur(5px);border-radius:14px;padding:8px 16px;color:white;font-size:12px;font-weight:bold;border:1px solid rgba(255,255,255,0.5)">Podlej 💧</div>
+          <div style="background:rgba(181,222,255,0.7);backdrop-filter:blur(5px);border-radius:14px;padding:8px 16px;color:white;font-size:12px;font-weight:bold;border:1px solid rgba(255,255,255,0.5)">Zbierz ✨</div>
+        </div>
+      </div>
+      <!-- Card mockup -->
+      <div style="background:rgba(255,255,255,0.5);backdrop-filter:blur(8px);border-radius:16px;border:1px solid rgba(255,255,255,0.6);padding:12px;width:70%;display:flex;gap:10px;align-items:center">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#DCD3FF,#FFB5E8);flex-shrink:0"></div>
+        <div>
+          <div style="font-size:11px;font-weight:bold;color:#333">Skibidi Toilet</div>
+          <div style="font-size:9px;color:#9C27B0;font-weight:bold">★ Common</div>
+        </div>
+      </div>
+      <!-- Tab bar -->
+      <div style="background:rgba(255,255,255,0.5);backdrop-filter:blur(10px);border-radius:16px;border:1px solid rgba(255,255,255,0.6);padding:8px 16px;display:flex;gap:16px;width:80%;justify-content:center">
+        <div style="background:rgba(255,181,232,0.6);width:32px;height:32px;border-radius:10px"></div>
+        <div style="background:rgba(255,255,255,0.4);width:32px;height:32px;border-radius:10px"></div>
+        <div style="background:rgba(255,255,255,0.4);width:32px;height:32px;border-radius:10px"></div>
+        <div style="background:rgba(255,255,255,0.4);width:32px;height:32px;border-radius:10px"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C) Glass / Szklany</h3>
+      <p>Półprzezroczyste panele z blur, pastelowy gradient prześwituje. Eleganckie, nowoczesne, ale Roblox ma ograniczone wsparcie blur — może wymagać fallbacku.</p>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle">Kliknij styl, który najlepiej pasuje do Candy Pastel klimatu</p>

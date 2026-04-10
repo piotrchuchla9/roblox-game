@@ -1,0 +1,182 @@
+<h2>Jak powinna wyglądać kolekcja brainrotów?</h2>
+<p class="subtitle">Obecna to prosta siatka 90x100px kart. Wybierz nowy styl.</p>
+
+<div class="cards">
+  <div class="card" data-choice="rarity-sections" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: linear-gradient(180deg, #0a0a1a, #0a0520); padding: 16px; min-height: 300px;">
+      <!-- Header -->
+      <div style="text-align:center; margin-bottom:12px;">
+        <span style="font-size:16px; font-weight:900; background: linear-gradient(90deg, #ff00ff, #00ffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">📖 COLLECTION</span>
+        <div style="font-size:10px; color:rgba(255,255,255,0.3); margin-top:2px;">5/15 discovered</div>
+      </div>
+      <!-- Rarity section: Legendary -->
+      <div style="margin-bottom:10px;">
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+          <div style="height:1px; flex:1; background: linear-gradient(90deg, transparent, rgba(255,200,0,0.4));"></div>
+          <span style="font-size:9px; font-weight:900; color:#ffc800; text-transform:uppercase; letter-spacing:2px;">⭐ Legendary</span>
+          <div style="height:1px; flex:1; background: linear-gradient(90deg, rgba(255,200,0,0.4), transparent);"></div>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <div style="flex:1; background: linear-gradient(180deg, rgba(255,200,0,0.15), rgba(255,200,0,0.03)); border:1px solid rgba(255,200,0,0.4); border-radius:10px; padding:8px; text-align:center;">
+            <div style="font-size:18px; margin-bottom:2px;">🏆</div>
+            <div style="font-size:8px; color:#ffc800; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Tralalero Gold</div>
+            <div style="font-size:10px; color:#fff; font-weight:900;">x2</div>
+          </div>
+          <div style="flex:1; background: rgba(255,255,255,0.02); border:1px dashed rgba(255,200,0,0.15); border-radius:10px; padding:8px; text-align:center; opacity:0.4;">
+            <div style="font-size:18px; margin-bottom:2px;">❓</div>
+            <div style="font-size:8px; color:rgba(255,255,255,0.3);">???</div>
+          </div>
+        </div>
+      </div>
+      <!-- Rarity section: Rare -->
+      <div style="margin-bottom:10px;">
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+          <div style="height:1px; flex:1; background: linear-gradient(90deg, transparent, rgba(50,120,255,0.4));"></div>
+          <span style="font-size:9px; font-weight:900; color:#3278ff; text-transform:uppercase; letter-spacing:2px;">💎 Rare</span>
+          <div style="height:1px; flex:1; background: linear-gradient(90deg, rgba(50,120,255,0.4), transparent);"></div>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <div style="flex:1; background: linear-gradient(180deg, rgba(50,120,255,0.15), rgba(50,120,255,0.03)); border:1px solid rgba(50,120,255,0.4); border-radius:10px; padding:8px; text-align:center;">
+            <div style="font-size:18px; margin-bottom:2px;">🐊</div>
+            <div style="font-size:8px; color:#6ea8ff; font-weight:bold;">Bombardiro</div>
+            <div style="font-size:10px; color:#fff; font-weight:900;">x5</div>
+          </div>
+          <div style="flex:1; background: linear-gradient(180deg, rgba(50,120,255,0.15), rgba(50,120,255,0.03)); border:1px solid rgba(50,120,255,0.4); border-radius:10px; padding:8px; text-align:center;">
+            <div style="font-size:18px; margin-bottom:2px;">🎵</div>
+            <div style="font-size:8px; color:#6ea8ff; font-weight:bold;">Lirili Larila</div>
+            <div style="font-size:10px; color:#fff; font-weight:900;">x1</div>
+          </div>
+        </div>
+      </div>
+      <!-- Common -->
+      <div>
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+          <div style="height:1px; flex:1; background: linear-gradient(90deg, transparent, rgba(180,180,180,0.3));"></div>
+          <span style="font-size:9px; font-weight:900; color:#b4b4b4; text-transform:uppercase; letter-spacing:2px;">Common</span>
+          <div style="height:1px; flex:1; background: linear-gradient(90deg, rgba(180,180,180,0.3), transparent);"></div>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <div style="flex:1; background: rgba(180,180,180,0.06); border:1px solid rgba(180,180,180,0.2); border-radius:10px; padding:8px; text-align:center;">
+            <div style="font-size:18px; margin-bottom:2px;">🚽</div>
+            <div style="font-size:8px; color:#b4b4b4; font-weight:bold;">Skibidi Basic</div>
+            <div style="font-size:10px; color:#fff; font-weight:900;">x12</div>
+          </div>
+          <div style="flex:1; background: rgba(180,180,180,0.06); border:1px solid rgba(180,180,180,0.2); border-radius:10px; padding:8px; text-align:center;">
+            <div style="font-size:18px; margin-bottom:2px;">👶</div>
+            <div style="font-size:8px; color:#b4b4b4; font-weight:bold;">Baby Brainrot</div>
+            <div style="font-size:10px; color:#fff; font-weight:900;">x8</div>
+          </div>
+          <div style="flex:1; background:rgba(255,255,255,0.02); border:1px dashed rgba(180,180,180,0.1); border-radius:10px; padding:8px; text-align:center; opacity:0.4;">
+            <div style="font-size:18px;">❓</div>
+            <div style="font-size:8px; color:rgba(255,255,255,0.3);">???</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A: Rarity Sections</h3>
+      <p>Pogrupowane sekcjami według rzadkości (od najrzadszych na górze). Neonowe divider lines, karty z gradient border w kolorze rzadkości. Odkryte świecą, locked są szare.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="list-collection" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: linear-gradient(180deg, #0a0a1a, #0a0520); padding: 16px; min-height: 300px;">
+      <!-- Header -->
+      <div style="text-align:center; margin-bottom:12px;">
+        <span style="font-size:16px; font-weight:900; background: linear-gradient(90deg, #ff00ff, #00ffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">📖 COLLECTION</span>
+      </div>
+      <!-- List items -->
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <!-- Legendary owned -->
+        <div style="display:flex; align-items:center; gap:10px; background: linear-gradient(90deg, rgba(255,200,0,0.12), transparent); border-left:3px solid #ffc800; border-radius:10px; padding:10px 12px;">
+          <div style="font-size:24px;">🏆</div>
+          <div style="flex:1;">
+            <div style="color:#fff; font-size:12px; font-weight:bold;">Tralalero Tralala Gold</div>
+            <div style="font-size:9px; color:#ffc800; font-weight:bold;">⭐ LEGENDARY — 2.5%</div>
+          </div>
+          <div style="color:#fff; font-weight:900; font-size:14px;">x2</div>
+          <div style="background: rgba(200,80,30,0.8); border-radius:6px; padding:4px 8px; font-size:9px; color:#fff; font-weight:bold;">SELL</div>
+        </div>
+        <!-- Rare owned -->
+        <div style="display:flex; align-items:center; gap:10px; background: linear-gradient(90deg, rgba(50,120,255,0.1), transparent); border-left:3px solid #3278ff; border-radius:10px; padding:10px 12px;">
+          <div style="font-size:24px;">🐊</div>
+          <div style="flex:1;">
+            <div style="color:#fff; font-size:12px; font-weight:bold;">Bombardiro Crocodilo</div>
+            <div style="font-size:9px; color:#3278ff; font-weight:bold;">💎 RARE — 15%</div>
+          </div>
+          <div style="color:#fff; font-weight:900; font-size:14px;">x5</div>
+          <div style="background: rgba(200,80,30,0.8); border-radius:6px; padding:4px 8px; font-size:9px; color:#fff; font-weight:bold;">SELL</div>
+        </div>
+        <!-- Common owned -->
+        <div style="display:flex; align-items:center; gap:10px; background: rgba(255,255,255,0.03); border-left:3px solid #b4b4b4; border-radius:10px; padding:10px 12px;">
+          <div style="font-size:24px;">🚽</div>
+          <div style="flex:1;">
+            <div style="color:#fff; font-size:12px; font-weight:bold;">Skibidi Toilet Basic</div>
+            <div style="font-size:9px; color:#b4b4b4; font-weight:bold;">Common — 50%</div>
+          </div>
+          <div style="color:#fff; font-weight:900; font-size:14px;">x12</div>
+        </div>
+        <!-- Locked -->
+        <div style="display:flex; align-items:center; gap:10px; background: rgba(255,255,255,0.02); border-left:3px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px 12px; opacity:0.35;">
+          <div style="font-size:24px;">❓</div>
+          <div style="flex:1;">
+            <div style="color:rgba(255,255,255,0.4); font-size:12px; font-weight:bold;">???</div>
+            <div style="font-size:9px; color:rgba(255,255,255,0.2);">EPIC — 7%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B: List Collection</h3>
+      <p>Lista pionowa jak garden beds. Spójne z wybranym stylem grządek. Kolorowa lewa krawędź = rzadkość. Emoji + nazwa + count + sell button.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="card-gallery" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: linear-gradient(180deg, #0a0a1a, #0a0520); padding: 16px; min-height: 300px;">
+      <!-- Header -->
+      <div style="text-align:center; margin-bottom:10px;">
+        <span style="font-size:16px; font-weight:900; background: linear-gradient(90deg, #ff00ff, #00ffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">📖 COLLECTION</span>
+      </div>
+      <!-- Filter tabs -->
+      <div style="display:flex; gap:4px; margin-bottom:10px; justify-content:center; flex-wrap:wrap;">
+        <div style="background:#ff00ff; border-radius:6px; padding:3px 8px; font-size:8px; color:#fff; font-weight:bold;">ALL</div>
+        <div style="background:rgba(255,200,0,0.2); border:1px solid rgba(255,200,0,0.4); border-radius:6px; padding:3px 8px; font-size:8px; color:#ffc800; font-weight:bold;">LEGEND</div>
+        <div style="background:rgba(50,120,255,0.2); border:1px solid rgba(50,120,255,0.4); border-radius:6px; padding:3px 8px; font-size:8px; color:#3278ff; font-weight:bold;">RARE</div>
+        <div style="background:rgba(180,180,180,0.1); border:1px solid rgba(180,180,180,0.3); border-radius:6px; padding:3px 8px; font-size:8px; color:#b4b4b4; font-weight:bold;">COMMON</div>
+      </div>
+      <!-- Big cards -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+        <div style="background: linear-gradient(180deg, rgba(255,200,0,0.12), rgba(255,200,0,0.02)); border:1px solid rgba(255,200,0,0.4); border-radius:12px; padding:12px; text-align:center;">
+          <div style="font-size:32px; margin-bottom:4px;">🏆</div>
+          <div style="font-size:10px; color:#ffc800; font-weight:bold;">Tralalero Gold</div>
+          <div style="font-size:8px; color:rgba(255,255,255,0.4); margin:2px 0;">⭐ LEGENDARY</div>
+          <div style="font-size:14px; color:#fff; font-weight:900;">x2</div>
+          <div style="background: rgba(200,80,30,0.8); border-radius:6px; padding:3px 8px; font-size:9px; color:#fff; font-weight:bold; margin-top:4px; display:inline-block;">SELL +500</div>
+        </div>
+        <div style="background: linear-gradient(180deg, rgba(50,120,255,0.12), rgba(50,120,255,0.02)); border:1px solid rgba(50,120,255,0.4); border-radius:12px; padding:12px; text-align:center;">
+          <div style="font-size:32px; margin-bottom:4px;">🐊</div>
+          <div style="font-size:10px; color:#6ea8ff; font-weight:bold;">Bombardiro</div>
+          <div style="font-size:8px; color:rgba(255,255,255,0.4); margin:2px 0;">💎 RARE</div>
+          <div style="font-size:14px; color:#fff; font-weight:900;">x5</div>
+          <div style="background: rgba(200,80,30,0.8); border-radius:6px; padding:3px 8px; font-size:9px; color:#fff; font-weight:bold; margin-top:4px; display:inline-block;">SELL +50</div>
+        </div>
+        <div style="background: rgba(180,180,180,0.04); border:1px solid rgba(180,180,180,0.2); border-radius:12px; padding:12px; text-align:center;">
+          <div style="font-size:32px; margin-bottom:4px;">🚽</div>
+          <div style="font-size:10px; color:#b4b4b4; font-weight:bold;">Skibidi Basic</div>
+          <div style="font-size:8px; color:rgba(255,255,255,0.4); margin:2px 0;">Common</div>
+          <div style="font-size:14px; color:#fff; font-weight:900;">x12</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.1); border-radius:12px; padding:12px; text-align:center; opacity:0.35;">
+          <div style="font-size:32px; margin-bottom:4px;">❓</div>
+          <div style="font-size:10px; color:rgba(255,255,255,0.3);">???</div>
+          <div style="font-size:8px; color:rgba(255,255,255,0.15);">EPIC</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C: Card Gallery + Filtry</h3>
+      <p>Siatka 2-kolumnowa z dużymi kartami + paski filtrów na górze (ALL / LEGENDARY / RARE / ...). Duże emoji, sell button na karcie. Bardziej "kolekcjonerskie".</p>
+    </div>
+  </div>
+</div>

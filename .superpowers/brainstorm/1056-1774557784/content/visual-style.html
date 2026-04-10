@@ -1,0 +1,94 @@
+<h2>Jaki styl wizualny UI dla "Grow a Brainrot"?</h2>
+<p class="subtitle">Wybierz kierunek, który najlepiej pasuje do klimatu gry (memy, brainrot, Gen Alpha)</p>
+
+<div class="cards">
+  <div class="card" data-choice="neon-chaos" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1a2e 100%); padding: 24px; min-height: 220px;">
+      <!-- Neon Chaos mockup -->
+      <div style="text-align:center; margin-bottom:16px;">
+        <span style="font-size:28px; font-weight:900; background: linear-gradient(90deg, #ff00ff, #00ffff, #ff00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 20px rgba(255,0,255,0.5);">GROW A BRAINROT</span>
+      </div>
+      <!-- Mock HUD -->
+      <div style="display:flex; gap:8px; margin-bottom:12px;">
+        <div style="background: rgba(255,0,255,0.15); border: 2px solid #ff00ff; border-radius:12px; padding:8px 14px; flex:1; text-align:center;">
+          <div style="font-size:10px; color:#ff80ff; text-transform:uppercase; letter-spacing:1px;">Seeds</div>
+          <div style="font-size:18px; font-weight:bold; color:#fff; text-shadow: 0 0 10px #ff00ff;">1,250</div>
+        </div>
+        <div style="background: rgba(0,255,255,0.15); border: 2px solid #00ffff; border-radius:12px; padding:8px 14px; flex:1; text-align:center;">
+          <div style="font-size:10px; color:#80ffff; text-transform:uppercase; letter-spacing:1px;">Golden</div>
+          <div style="font-size:18px; font-weight:bold; color:#fff; text-shadow: 0 0 10px #00ffff;">15</div>
+        </div>
+      </div>
+      <!-- Mock buttons -->
+      <div style="display:flex; gap:6px;">
+        <div style="flex:1; background: linear-gradient(180deg, #ff00ff, #aa00aa); border-radius:10px; padding:10px; text-align:center; color:#fff; font-weight:bold; font-size:13px; box-shadow: 0 0 15px rgba(255,0,255,0.4);">🛒 Shop</div>
+        <div style="flex:1; background: linear-gradient(180deg, #00ffff, #0088aa); border-radius:10px; padding:10px; text-align:center; color:#fff; font-weight:bold; font-size:13px; box-shadow: 0 0 15px rgba(0,255,255,0.4);">📖 Collection</div>
+        <div style="flex:1; background: linear-gradient(180deg, #ffff00, #aa8800); border-radius:10px; padding:10px; text-align:center; color:#fff; font-weight:bold; font-size:13px; box-shadow: 0 0 15px rgba(255,255,0,0.4);">🎁 Daily</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A: Neon Chaos</h3>
+      <p>Jaskrawe neony, glow effects, gradienty magenta/cyan. Agresywny, "w twarz" styl typowy dla brainrot contentu. Mocno kontrastowy, świecący.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="clean-playful" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%); padding: 24px; min-height: 220px;">
+      <!-- Clean Playful mockup -->
+      <div style="text-align:center; margin-bottom:16px;">
+        <span style="font-size:26px; font-weight:800; color:#fff;">Grow a Brainrot 🌱</span>
+      </div>
+      <!-- Mock HUD -->
+      <div style="display:flex; gap:10px; margin-bottom:14px;">
+        <div style="background: rgba(255,255,255,0.08); backdrop-filter:blur(10px); border: 1px solid rgba(255,255,255,0.15); border-radius:14px; padding:10px 16px; flex:1; text-align:center;">
+          <div style="font-size:10px; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px;">Seeds</div>
+          <div style="font-size:18px; font-weight:bold; color:#ffd700;">1,250</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.08); backdrop-filter:blur(10px); border: 1px solid rgba(255,255,255,0.15); border-radius:14px; padding:10px 16px; flex:1; text-align:center;">
+          <div style="font-size:10px; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px;">Golden</div>
+          <div style="font-size:18px; font-weight:bold; color:#ffa500;">15</div>
+        </div>
+      </div>
+      <!-- Mock buttons -->
+      <div style="display:flex; gap:8px;">
+        <div style="flex:1; background: rgba(99,102,241,0.9); border-radius:12px; padding:10px; text-align:center; color:#fff; font-weight:600; font-size:13px;">🛒 Shop</div>
+        <div style="flex:1; background: rgba(16,185,129,0.9); border-radius:12px; padding:10px; text-align:center; color:#fff; font-weight:600; font-size:13px;">📖 Collect</div>
+        <div style="flex:1; background: rgba(245,158,11,0.9); border-radius:12px; padding:10px; text-align:center; color:#fff; font-weight:600; font-size:13px;">🎁 Daily</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B: Clean & Playful</h3>
+      <p>Nowoczesny, przejrzysty design z glass-morphism. Zaokrąglone kształty, subtelmne gradienty, czytelna hierarchia. Profesjonalny ale przyjazny.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="retro-meme" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: linear-gradient(135deg, #2d1b69 0%, #11998e 100%); padding: 24px; min-height: 220px;">
+      <!-- Retro Meme mockup -->
+      <div style="text-align:center; margin-bottom:16px;">
+        <span style="font-size:28px; font-weight:900; color:#fff; text-shadow: 3px 3px 0 #ff6b6b, -1px -1px 0 #4ecdc4;">GROW A BRAINROT</span>
+      </div>
+      <!-- Mock HUD -->
+      <div style="display:flex; gap:8px; margin-bottom:12px;">
+        <div style="background: #ff6b6b; border-radius:8px; padding:8px 14px; flex:1; text-align:center; transform: rotate(-1deg); box-shadow: 4px 4px 0 rgba(0,0,0,0.3);">
+          <div style="font-size:10px; color:rgba(255,255,255,0.8); text-transform:uppercase; font-weight:bold;">Seeds</div>
+          <div style="font-size:18px; font-weight:900; color:#fff;">1,250</div>
+        </div>
+        <div style="background: #feca57; border-radius:8px; padding:8px 14px; flex:1; text-align:center; transform: rotate(1deg); box-shadow: 4px 4px 0 rgba(0,0,0,0.3);">
+          <div style="font-size:10px; color:rgba(0,0,0,0.6); text-transform:uppercase; font-weight:bold;">Golden</div>
+          <div style="font-size:18px; font-weight:900; color:#2d1b69;">15</div>
+        </div>
+      </div>
+      <!-- Mock buttons -->
+      <div style="display:flex; gap:6px;">
+        <div style="flex:1; background: #ff6b6b; border-radius:8px; padding:10px; text-align:center; color:#fff; font-weight:900; font-size:13px; box-shadow: 3px 3px 0 rgba(0,0,0,0.3); transform: rotate(-0.5deg);">🛒 SHOP</div>
+        <div style="flex:1; background: #4ecdc4; border-radius:8px; padding:10px; text-align:center; color:#fff; font-weight:900; font-size:13px; box-shadow: 3px 3px 0 rgba(0,0,0,0.3); transform: rotate(0.5deg);">📖 BOOK</div>
+        <div style="flex:1; background: #feca57; border-radius:8px; padding:10px; text-align:center; color:#2d1b69; font-weight:900; font-size:13px; box-shadow: 3px 3px 0 rgba(0,0,0,0.3); transform: rotate(-0.5deg);">🎁 DAILY</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C: Retro Meme</h3>
+      <p>Kolorowy, lekko "chaotyczny" styl z cieniami, drobnymi rotacjami i bold kolorami. Bardziej "memowy" i zabawny, nawiązuje do estetyki brainrot contentu.</p>
+    </div>
+  </div>
+</div>

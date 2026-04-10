@@ -1,0 +1,131 @@
+<h2>Jak powinny wyglądać panele (Shop, Collection, itp.)?</h2>
+<p class="subtitle">Obecne to małe ramki 400x300px z płaskim tłem. Wybierz nowy styl.</p>
+
+<div class="cards">
+  <div class="card" data-choice="fullscreen-panels" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #0a0a1a; padding: 16px; min-height: 280px; position:relative;">
+      <!-- Fullscreen panel mockup -->
+      <div style="position:absolute; inset:0; background: rgba(10,5,30,0.95); backdrop-filter:blur(10px); display:flex; flex-direction:column;">
+        <!-- Header -->
+        <div style="padding:16px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #ff00ff;">
+          <span style="font-size:20px; font-weight:900; background: linear-gradient(90deg, #ff00ff, #00ffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🛒 SHOP</span>
+          <div style="width:32px; height:32px; border-radius:8px; background: rgba(255,0,255,0.2); border:1px solid #ff00ff; display:flex; align-items:center; justify-content:center; color:#ff00ff; font-weight:bold; font-size:16px;">✕</div>
+        </div>
+        <!-- Content area -->
+        <div style="flex:1; padding:16px; overflow:hidden;">
+          <!-- Item cards -->
+          <div style="background: linear-gradient(135deg, rgba(255,0,255,0.1), rgba(0,255,255,0.05)); border:1px solid rgba(255,0,255,0.3); border-radius:12px; padding:14px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="color:#fff; font-weight:bold; font-size:14px;">VIP Gardener</div>
+              <div style="color:rgba(255,255,255,0.5); font-size:11px;">2x growth speed</div>
+            </div>
+            <div style="background: linear-gradient(135deg, #ff00ff, #aa00aa); border-radius:8px; padding:6px 14px; color:#fff; font-weight:bold; font-size:13px; box-shadow: 0 0 12px rgba(255,0,255,0.4);">199 R$</div>
+          </div>
+          <div style="background: linear-gradient(135deg, rgba(0,255,255,0.1), rgba(255,0,255,0.05)); border:1px solid rgba(0,255,255,0.3); border-radius:12px; padding:14px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="color:#fff; font-weight:bold; font-size:14px;">Auto-Harvest</div>
+              <div style="color:rgba(255,255,255,0.5); font-size:11px;">Auto collect when ready</div>
+            </div>
+            <div style="background: linear-gradient(135deg, #00ffff, #0088aa); border-radius:8px; padding:6px 14px; color:#fff; font-weight:bold; font-size:13px; box-shadow: 0 0 12px rgba(0,255,255,0.4);">149 R$</div>
+          </div>
+          <div style="background: linear-gradient(135deg, rgba(255,255,0,0.1), rgba(255,0,255,0.05)); border:1px solid rgba(255,255,0,0.3); border-radius:12px; padding:14px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="color:#fff; font-weight:bold; font-size:14px;">Double Collection</div>
+              <div style="color:rgba(255,255,255,0.5); font-size:11px;">2x collection value</div>
+            </div>
+            <div style="background: linear-gradient(135deg, #ffff00, #aa8800); border-radius:8px; padding:6px 14px; color:#1a1a2e; font-weight:bold; font-size:13px; box-shadow: 0 0 12px rgba(255,255,0,0.4);">99 R$</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A: Fullscreen Overlay</h3>
+      <p>Panel zajmuje cały ekran z ciemnym tłem. Duży header z neonowym tytułem, karty z gradient border. Maksymalna przestrzeń na content, czytelne na mobile.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="centered-popup" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #0a0a1a; padding: 16px; min-height: 280px; position:relative; display:flex; align-items:center; justify-content:center;">
+      <!-- Dimmed background -->
+      <div style="position:absolute; inset:0; background: rgba(0,0,0,0.6);"></div>
+      <!-- Centered popup -->
+      <div style="position:relative; width:85%; background: linear-gradient(180deg, #1a0a2e, #0a0a1a); border: 2px solid #ff00ff; border-radius:16px; box-shadow: 0 0 30px rgba(255,0,255,0.3), 0 0 60px rgba(255,0,255,0.1); overflow:hidden;">
+        <!-- Glow top -->
+        <div style="height:3px; background: linear-gradient(90deg, transparent, #ff00ff, #00ffff, #ff00ff, transparent);"></div>
+        <!-- Header -->
+        <div style="padding:14px 16px 10px; text-align:center;">
+          <div style="font-size:18px; font-weight:900; color:#fff; text-shadow: 0 0 20px rgba(255,0,255,0.5);">🛒 SHOP</div>
+        </div>
+        <!-- Items compact -->
+        <div style="padding:8px 14px 14px;">
+          <div style="background: rgba(255,255,255,0.05); border:1px solid rgba(255,0,255,0.2); border-radius:10px; padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:#fff; font-size:12px; font-weight:bold;">VIP Gardener</span>
+            <span style="color:#ff80ff; font-size:12px; font-weight:bold;">199 R$</span>
+          </div>
+          <div style="background: rgba(255,255,255,0.05); border:1px solid rgba(0,255,255,0.2); border-radius:10px; padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:#fff; font-size:12px; font-weight:bold;">Auto-Harvest</span>
+            <span style="color:#80ffff; font-size:12px; font-weight:bold;">149 R$</span>
+          </div>
+          <div style="background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,0,0.2); border-radius:10px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:#fff; font-size:12px; font-weight:bold;">Double Collection</span>
+            <span style="color:#ffff80; font-size:12px; font-weight:bold;">99 R$</span>
+          </div>
+        </div>
+        <!-- Close -->
+        <div style="text-align:center; padding:0 0 12px; color:rgba(255,255,255,0.3); font-size:11px;">tap outside to close</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B: Centered Popup</h3>
+      <p>Popup na środku z dimmed tłem. Neonowa ramka z glow, gradient top-line. Widać grę w tle. Bardziej "okienkowy" styl.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="slide-up" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #0a0a1a; padding: 16px; min-height: 280px; position:relative; display:flex; flex-direction:column; justify-content:flex-end;">
+      <!-- Game area visible on top -->
+      <div style="flex:1; display:flex; align-items:center; justify-content:center; color: rgba(255,255,255,0.15); font-size:13px; padding-bottom:8px;">
+        [ widać grę na górze ]
+      </div>
+      <!-- Slide-up panel -->
+      <div style="background: linear-gradient(180deg, #1a0a2e, #0a0a1a); border-top: 2px solid #ff00ff; border-radius:20px 20px 0 0; box-shadow: 0 -10px 40px rgba(255,0,255,0.2);">
+        <!-- Handle -->
+        <div style="text-align:center; padding:8px 0 4px;">
+          <div style="width:40px; height:4px; background: rgba(255,0,255,0.4); border-radius:2px; margin:0 auto;"></div>
+        </div>
+        <!-- Header -->
+        <div style="padding:4px 16px 10px; text-align:center;">
+          <div style="font-size:18px; font-weight:900; background: linear-gradient(90deg, #ff00ff, #00ffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🛒 SHOP</div>
+        </div>
+        <!-- Items -->
+        <div style="padding:0 14px 14px;">
+          <div style="background: rgba(255,0,255,0.08); border-left:3px solid #ff00ff; border-radius:8px; padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="color:#fff; font-size:12px; font-weight:bold;">VIP Gardener</div>
+              <div style="color:rgba(255,255,255,0.4); font-size:10px;">2x growth speed</div>
+            </div>
+            <div style="background: linear-gradient(135deg, #ff00ff, #aa00aa); border-radius:6px; padding:4px 10px; color:#fff; font-weight:bold; font-size:11px;">199 R$</div>
+          </div>
+          <div style="background: rgba(0,255,255,0.08); border-left:3px solid #00ffff; border-radius:8px; padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="color:#fff; font-size:12px; font-weight:bold;">Auto-Harvest</div>
+              <div style="color:rgba(255,255,255,0.4); font-size:10px;">Auto collect when ready</div>
+            </div>
+            <div style="background: linear-gradient(135deg, #00ffff, #0088aa); border-radius:6px; padding:4px 10px; color:#fff; font-weight:bold; font-size:11px;">149 R$</div>
+          </div>
+          <div style="background: rgba(255,255,0,0.08); border-left:3px solid #ffff00; border-radius:8px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="color:#fff; font-size:12px; font-weight:bold;">Double Collection</div>
+              <div style="color:rgba(255,255,255,0.4); font-size:10px;">2x collection value</div>
+            </div>
+            <div style="background: linear-gradient(135deg, #ffff00, #aa8800); border-radius:6px; padding:4px 10px; color:#1a1a2e; font-weight:bold; font-size:11px;">99 R$</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C: Slide-Up Sheet</h3>
+      <p>Panel wysuwa się z dołu (jak iOS sheet). Widać grę na górze, uchwyt do przeciągnięcia. Nowoczesny mobile-first pattern z neonową lewą krawędzią na kartach.</p>
+    </div>
+  </div>
+</div>

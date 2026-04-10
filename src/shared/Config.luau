@@ -71,9 +71,11 @@ Config.LEADERBOARD_UPDATE_INTERVAL = 60
 
 -- Multiplayer / Plots
 Config.MAX_PLAYERS_PER_SERVER = 8
-Config.PLOT_COUNT = 8
+Config.PLOT_COUNT = 9
 Config.PLOT_SIZE = 20 -- studs per side
-Config.PLOT_RING_RADIUS = 65 -- studs from center to plot ring
+Config.GRID_COLS = 3 -- 3x3 grid
+Config.GRID_SPACING = 28 -- studs between plot centers
+Config.PLOT_RING_RADIUS = 65 -- kept for island radius calculations
 Config.PLOT_FADE_TIME = 10 -- seconds for plot fade out on leave
 
 -- Trading

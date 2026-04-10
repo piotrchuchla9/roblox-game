@@ -1,10 +1,13 @@
--- PlotManager: Allocates and releases player garden plots on the circular island
+-- PlotManager: Allocates and releases player garden plots on the 3x3 grid island
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage.Shared.Config)
 
 local PlotManager = {}
+
+-- Callback set by init.server to handle bed unlock (avoids circular deps)
+PlotManager.onUnlockBed = nil :: ((player: Player) -> ())?
 
 -- Plot slot state: nil = free, Player = occupied
 local plotSlots: { [number]: Player? } = {}
@@ -119,7 +122,7 @@ function PlotManager.buildBeds(marker: Instance, data: any)
 	local pos = marker.Position
 	local bedCount = data.garden.bedCount
 
-	for i = 1, bedCount do
+	for i = 1, Config.MAX_BED_COUNT do
 		local row = math.ceil(i / 4)
 		local col = ((i - 1) % 4) + 1
 		local bx = pos.X - 7 + (col - 1) * 5
@@ -130,19 +133,83 @@ function PlotManager.buildBeds(marker: Instance, data: any)
 		bed.Size = Vector3.new(4, 0.8, 4)
 		bed.Position = Vector3.new(bx, pos.Y + 0.6, bz)
 		bed.Anchored = true
-		bed.Color = Color3.fromRGB(139, 90, 43)
-		bed.Material = Enum.Material.Ground
 		bed.Parent = bedsFolder
 
-		-- Soil top
-		local soil = Instance.new("Part")
-		soil.Name = "Soil"
-		soil.Size = Vector3.new(3.5, 0.3, 3.5)
-		soil.Position = bed.Position + Vector3.new(0, 0.55, 0)
-		soil.Anchored = true
-		soil.Color = Color3.fromRGB(100, 70, 40)
-		soil.Material = Enum.Material.Ground
-		soil.Parent = bed
+		if i <= bedCount then
+			-- Unlocked bed
+			bed.Color = Color3.fromRGB(139, 90, 43)
+			bed.Material = Enum.Material.Ground
+
+			local soil = Instance.new("Part")
+			soil.Name = "Soil"
+			soil.Size = Vector3.new(3.5, 0.3, 3.5)
+			soil.Position = bed.Position + Vector3.new(0, 0.55, 0)
+			soil.Anchored = true
+			soil.Color = Color3.fromRGB(100, 70, 40)
+			soil.Material = Enum.Material.Ground
+			soil.Parent = bed
+		else
+			-- Locked bed
+			bed.Color = Color3.fromRGB(140, 140, 150)
+			bed.Material = Enum.Material.Slate
+
+			local bbPart = Instance.new("Part")
+			bbPart.Name = "LockSign"
+			bbPart.Size = Vector3.new(1, 1, 1)
+			bbPart.Position = bed.Position + Vector3.new(0, 2, 0)
+			bbPart.Anchored = true
+			bbPart.Transparency = 1
+			bbPart.CanCollide = false
+			bbPart.Parent = bed
+
+			local bbGui = Instance.new("BillboardGui")
+			bbGui.Size = UDim2.new(0, 80, 0, 30)
+			bbGui.StudsOffset = Vector3.new(0, 1, 0)
+			bbGui.Parent = bbPart
+
+			local lockLabel = Instance.new("TextLabel")
+			lockLabel.Size = UDim2.new(1, 0, 1, 0)
+			lockLabel.BackgroundTransparency = 1
+			lockLabel.Text = "LOCKED"
+			lockLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+			lockLabel.TextScaled = true
+			lockLabel.Font = Enum.Font.GothamBold
+			lockLabel.Parent = bbGui
+
+			local prompt = Instance.new("ProximityPrompt")
+			prompt.Name = "UnlockPrompt"
+			prompt.ActionText = "Unlock"
+			prompt.ObjectText = Config.BED_UPGRADE_COST .. " seeds"
+			prompt.MaxActivationDistance = 6
+			prompt.HoldDuration = 0.5
+			prompt.RequiresLineOfSight = false
+			prompt.Parent = bed
+
+			prompt.Triggered:Connect(function(triggerPlayer)
+				-- Only plot owner can unlock beds
+				local ownerSlot = playerPlots[triggerPlayer.UserId]
+				local markerName = marker.Name -- e.g. "PlotSlot0"
+				local slotNum = tonumber(markerName:match("%d+$"))
+				if ownerSlot ~= slotNum then return end
+
+				if PlotManager.onUnlockBed then
+					PlotManager.onUnlockBed(triggerPlayer)
+				end
+			end)
+		end
+	end
+end
+
+function PlotManager.rebuildBeds(player: Player, data: any)
+	local slotIndex = playerPlots[player.UserId]
+	if slotIndex == nil then return end
+
+	local plotSlotFolder = Workspace:FindFirstChild("PlotSlots")
+	if not plotSlotFolder then return end
+
+	local marker = plotSlotFolder:FindFirstChild("PlotSlot" .. slotIndex)
+	if marker then
+		PlotManager.buildBeds(marker, data)
 	end
 end
 

@@ -1,0 +1,53 @@
+<h2>Paleta kolorów świata</h2>
+<p class="subtitle">Wybierz klimat kolorystyczny dla całej gry — świat 3D + UI</p>
+
+<style>
+  .palette-strip { display:flex; height:120px; border-radius:12px; overflow:hidden; margin-bottom:12px; }
+  .palette-strip div { flex:1; }
+  .palette-card { background:#1e1e2e; border:2px solid #333; border-radius:16px; padding:20px; cursor:pointer; transition: border-color 0.2s; }
+  .palette-card:hover { border-color:#7c7cff; }
+  .palette-card.selected { border-color:#7c7cff; box-shadow:0 0 20px rgba(124,124,255,0.3); }
+  .palette-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:20px; margin:24px 0; }
+  .palette-card h3 { color:#fff; margin:8px 0 4px; font-size:1.2em; }
+  .palette-card p { color:#aaa; font-size:0.9em; line-height:1.4; }
+</style>
+
+<div class="palette-grid">
+  <div class="palette-card" data-choice="candy" onclick="toggleSelect(this)">
+    <div class="palette-strip">
+      <div style="background-color:#FFB5E8"></div>
+      <div style="background-color:#B5DEFF"></div>
+      <div style="background-color:#E7FFAC"></div>
+      <div style="background-color:#FFF5BA"></div>
+      <div style="background-color:#DCD3FF"></div>
+    </div>
+    <h3>🍬 Candy Pastel</h3>
+    <p>Miękkie pastele — róż, błękit, limonka, żółć, lawenda. Słodki, przyjazny, "Adopt Me" vibe.</p>
+  </div>
+
+  <div class="palette-card" data-choice="tropical" onclick="toggleSelect(this)">
+    <div class="palette-strip">
+      <div style="background-color:#00C9A7"></div>
+      <div style="background-color:#FF6F61"></div>
+      <div style="background-color:#FFD166"></div>
+      <div style="background-color:#118AB2"></div>
+      <div style="background-color:#73D2DE"></div>
+    </div>
+    <h3>🌴 Tropical Pop</h3>
+    <p>Żywe, nasycone kolory — turkus, koral, złoty, morski błękit. Energetyczne, "Pet Simulator" vibe.</p>
+  </div>
+
+  <div class="palette-card" data-choice="dreamy" onclick="toggleSelect(this)">
+    <div class="palette-strip">
+      <div style="background-color:#C8B6FF"></div>
+      <div style="background-color:#BBD0FF"></div>
+      <div style="background-color:#B8C0FF"></div>
+      <div style="background-color:#FFD6FF"></div>
+      <div style="background-color:#E7C6FF"></div>
+    </div>
+    <h3>✨ Dreamy Lavender</h3>
+    <p>Fioletowo-różowa paleta marzeń — lawenda, liliowy, perłowy róż. Magiczny, "fairy garden" klimat.</p>
+  </div>
+</div>
+
+<p class="subtitle">Kliknij kartę, która najbardziej pasuje do Twojej wizji gry</p>
